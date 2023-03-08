@@ -8,6 +8,16 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "Node",
+"class": "_GameJolt",
+"language": "GDScript",
+"path": "res://addons/gamejolt/gamejolt.gd"
+} ]
+_global_script_class_icons={
+"_GameJolt": ""
+}
+
 [application]
 
 config/name="Game Jolt API"
@@ -21,6 +31,11 @@ config/icon="res://icon.png"
 [autoload]
 
 GameJolt="*res://addons/gamejolt/gamejolt.gd"
+
+[display]
+
+window/size/width=960
+window/size/height=540
 
 [editor_plugins]
 
