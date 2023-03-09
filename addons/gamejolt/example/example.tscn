@@ -26,7 +26,7 @@ size_flags_vertical = 3
 
 [node name="TextureRect" type="TextureRect" parent="MarginContainer/VBoxContainer"]
 margin_right = 936.0
-margin_bottom = 66.0
+margin_bottom = 35.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.15
@@ -35,121 +35,212 @@ expand = true
 stretch_mode = 6
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
-margin_top = 70.0
+margin_top = 39.0
 margin_right = 936.0
-margin_bottom = 516.0
+margin_bottom = 275.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-
-[node name="VBoxContainer2" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer"]
-margin_right = 310.0
-margin_bottom = 446.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-size_flags_stretch_ratio = 0.5
-
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
-margin_right = 310.0
-margin_bottom = 14.0
-text = "Input"
-align = 1
-valign = 1
-
-[node name="TextEditInput" type="TextEdit" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
-margin_top = 18.0
-margin_right = 310.0
-margin_bottom = 221.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-show_line_numbers = true
-
-[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
-margin_top = 225.0
-margin_right = 310.0
-margin_bottom = 239.0
-text = "Output"
-align = 1
-valign = 1
-
-[node name="TextEditOutput" type="TextEdit" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
-margin_top = 243.0
-margin_right = 310.0
-margin_bottom = 446.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-readonly = true
-show_line_numbers = true
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer"]
-margin_left = 314.0
-margin_right = 936.0
-margin_bottom = 446.0
+margin_right = 466.0
+margin_bottom = 236.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
-margin_right = 622.0
-margin_bottom = 60.0
+margin_right = 466.0
+margin_bottom = 30.0
 size_flags_horizontal = 3
 size_flags_vertical = 7
 text = "Time"
 align = 1
-valign = 1
+valign = 2
 
 [node name="ButtonTime" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
-margin_top = 64.0
-margin_right = 622.0
-margin_bottom = 124.0
+margin_top = 34.0
+margin_right = 466.0
+margin_bottom = 64.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "time"
 
 [node name="Label3" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
-margin_top = 128.0
-margin_right = 622.0
-margin_bottom = 188.0
+margin_top = 68.0
+margin_right = 466.0
+margin_bottom = 98.0
 size_flags_horizontal = 3
 size_flags_vertical = 7
 text = "Friends"
 align = 1
-valign = 1
+valign = 2
 
 [node name="ButtonFriends" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
-margin_top = 192.0
-margin_right = 622.0
-margin_bottom = 253.0
+margin_top = 102.0
+margin_right = 466.0
+margin_bottom = 133.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "friends"
 
 [node name="Label4" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
-margin_top = 257.0
-margin_right = 622.0
-margin_bottom = 317.0
+margin_top = 137.0
+margin_right = 466.0
+margin_bottom = 167.0
 size_flags_horizontal = 3
 size_flags_vertical = 7
 text = "Users"
 align = 1
-valign = 1
+valign = 2
 
 [node name="ButtonUsersAuth" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
-margin_top = 321.0
-margin_right = 622.0
-margin_bottom = 381.0
+margin_top = 171.0
+margin_right = 466.0
+margin_bottom = 201.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "users_auth"
 
 [node name="ButtonUsersFetch" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
-margin_top = 385.0
-margin_right = 622.0
-margin_bottom = 446.0
+margin_top = 205.0
+margin_right = 466.0
+margin_bottom = 236.0
+hint_tooltip = "user_name: String, user_ids: Array[int]"
 size_flags_horizontal = 3
 size_flags_vertical = 3
-text = "users_fetch"
+text = "users_fetch(...)"
 
-[connection signal="focus_exited" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/TextEditInput" to="." method="_on_TextEditInput_focus_exited"]
+[node name="VBoxContainer2" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+margin_left = 470.0
+margin_right = 936.0
+margin_bottom = 236.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label5" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
+margin_right = 466.0
+margin_bottom = 30.0
+size_flags_horizontal = 3
+size_flags_vertical = 7
+text = "Sessions"
+align = 1
+valign = 2
+
+[node name="ButtonSessionsOpen" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
+margin_top = 34.0
+margin_right = 466.0
+margin_bottom = 64.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "sessions_open"
+
+[node name="ButtonSessionsPing" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
+margin_top = 68.0
+margin_right = 466.0
+margin_bottom = 98.0
+hint_tooltip = "status: String = 'idle' | 'active'"
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "sessions_ping(...)"
+
+[node name="ButtonSessionsCheck" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
+margin_top = 102.0
+margin_right = 466.0
+margin_bottom = 133.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "sessions_check"
+
+[node name="ButtonSessionsClose" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
+margin_top = 137.0
+margin_right = 466.0
+margin_bottom = 167.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "sessions_close"
+
+[node name="Label6" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
+margin_top = 171.0
+margin_right = 466.0
+margin_bottom = 201.0
+size_flags_horizontal = 3
+size_flags_vertical = 7
+text = "Batch"
+align = 1
+valign = 2
+
+[node name="ButtonBatch" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
+margin_top = 205.0
+margin_right = 466.0
+margin_bottom = 236.0
+hint_tooltip = "parallel: bool, break_on_error: bool"
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "batch(...)"
+
+[node name="VBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+margin_top = 279.0
+margin_right = 936.0
+margin_bottom = 516.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/VBoxContainer2"]
+margin_right = 466.0
+margin_bottom = 237.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/VBoxContainer2/VBoxContainer"]
+margin_right = 466.0
+margin_bottom = 38.0
+size_flags_horizontal = 3
+size_flags_vertical = 7
+size_flags_stretch_ratio = 0.2
+text = "Input"
+align = 1
+valign = 2
+
+[node name="TextEditInput" type="TextEdit" parent="MarginContainer/VBoxContainer/VBoxContainer2/VBoxContainer"]
+margin_top = 42.0
+margin_right = 466.0
+margin_bottom = 237.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+show_line_numbers = true
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="MarginContainer/VBoxContainer/VBoxContainer2"]
+margin_left = 470.0
+margin_right = 936.0
+margin_bottom = 237.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer/VBoxContainer2/VBoxContainer2"]
+margin_right = 466.0
+margin_bottom = 38.0
+size_flags_horizontal = 3
+size_flags_vertical = 7
+size_flags_stretch_ratio = 0.2
+text = "Output"
+align = 1
+valign = 2
+
+[node name="TextEditOutput" type="TextEdit" parent="MarginContainer/VBoxContainer/VBoxContainer2/VBoxContainer2"]
+margin_top = 42.0
+margin_right = 466.0
+margin_bottom = 237.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+readonly = true
+show_line_numbers = true
+
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/ButtonTime" to="." method="_on_ButtonTime_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/ButtonFriends" to="." method="_on_ButtonFriends_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/ButtonUsersAuth" to="." method="_on_ButtonUsersAuth_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/ButtonUsersFetch" to="." method="_on_ButtonUsersFetch_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/ButtonSessionsOpen" to="." method="_on_ButtonSessionsOpen_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/ButtonSessionsPing" to="." method="_on_ButtonSessionsPing_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/ButtonSessionsCheck" to="." method="_on_ButtonSessionsCheck_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/ButtonSessionsClose" to="." method="_on_ButtonSessionsClose_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/ButtonBatch" to="." method="_on_ButtonBatch_pressed"]
+[connection signal="focus_exited" from="MarginContainer/VBoxContainer/VBoxContainer2/VBoxContainer/TextEditInput" to="." method="_on_TextEditInput_focus_exited"]

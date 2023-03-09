@@ -59,28 +59,68 @@ const OPERATIONS := {
 
 
 # Variables
-var user_name := ""
-var user_token := ""
-var submit_requests := true
+var _user_name := "" setget set_user_name, get_user_name
+var _user_token := "" setget set_user_token, get_user_token
+var _submit_requests := true
+var _batch_requests := []
 
 onready var _game_id: String = ProjectSettings.get_setting("game_jolt/default/game_id")
 onready var _private_key: String = ProjectSettings.get_setting("game_jolt/default/private_key")
 
 
-func _ready() -> void:
-	pass
+func set_user_name(value: String) -> void:
+	_user_name = value
 
 
-func _create_http_request() -> HTTPRequest:
-	var _http_request := HTTPRequest.new()
-	add_child(_http_request)
-	_http_request.use_threads = true
-	return _http_request
+func get_user_name() -> String:
+	return _user_name
+
+
+func set_user_token(value: String) -> void:
+	_user_token = value
+
+
+func get_user_token() -> String:
+	return _user_token
 
 
 # Batch Request
-func batch(requests: PoolStringArray, parallel := false, break_on_error := false):
-	pass
+func batch(parallel := false, break_on_error := false) -> _GameJolt:
+	if parallel and break_on_error:
+		_set_local_error_response(
+			"batch",
+			"Batch values cannot be used together: 'parallel', 'break_on_error'"
+		)
+		return self
+
+	for i in _batch_requests.size():
+		var request: String = _batch_requests[i]
+		request = request.replace(API_URL, "")
+		request = request.split("&signature=")[0]
+		request += "&signature=" + (request + _private_key).md5_text()
+		_batch_requests[i] = request
+
+	var data = {
+		"game_id": _game_id,
+		"requests": _batch_requests if _batch_requests.size() else null
+	}
+
+	var optional_data := {
+		"parallel": parallel if parallel else null,
+		"break_on_error": break_on_error if break_on_error else null,
+	}
+
+	data.merge(_validate_optional_data(optional_data))
+	return _submit("batch", data)
+
+
+func batch_begin():
+	_submit_requests = false
+	_batch_requests = []
+
+
+func batch_end():
+	_submit_requests = true
 
 
 # Data Store
@@ -108,8 +148,8 @@ func data_store_update(key: String, operation: String, value: String, global_dat
 func friends() -> _GameJolt:
 	var data = {
 		"game_id": _game_id,
-		"username": user_name,
-		"user_token": user_token,
+		"username": _user_name,
+		"user_token": _user_token,
 	}
 
 	return _submit("friends", data)
@@ -133,20 +173,51 @@ func scores_tables():
 
 
 # Sessions
-func sessions_check():
-	pass
+func sessions_check() -> _GameJolt:
+	var data = {
+		"game_id": _game_id,
+		"username": _user_name,
+		"user_token": _user_token,
+	}
+
+	return _submit("sessions/check", data)
 
 
-func sessions_close():
-	pass
+func sessions_close() -> _GameJolt:
+	var data = {
+		"game_id": _game_id,
+		"username": _user_name,
+		"user_token": _user_token,
+	}
+
+	return _submit("sessions/close", data)
 
 
-func sessions_open():
-	pass
+func sessions_open() -> _GameJolt:
+	var data = {
+		"game_id": _game_id,
+		"username": _user_name,
+		"user_token": _user_token,
+	}
+
+	return _submit("sessions/open", data)
 
 
-func sessions_ping(status := ""):
-	pass
+func sessions_ping(status := "") -> _GameJolt:
+	var data = {
+		"game_id": _game_id,
+		"username": _user_name,
+		"user_token": _user_token,
+	}
+
+	if status:
+		if not status in []:
+			_set_local_error_response("sessions/ping", "Ping status must be 'active' or 'idle'")
+			return self
+
+		data["status"] = status
+
+	return _submit("sessions/ping", data)
 
 
 # Time
@@ -175,8 +246,8 @@ func trophies_remove_achieved(trophy_id: int):
 func users_auth() -> _GameJolt:
 	var data = {
 		"game_id": _game_id,
-		"username": user_name,
-		"user_token": user_token,
+		"username": _user_name,
+		"user_token": _user_token,
 	}
 
 	return _submit("users/auth", data)
@@ -197,7 +268,7 @@ func users_fetch(_user_name := "", _user_ids := []):
 		data["user_id"] = ",".join(_user_ids)
 
 	else:
-		data["username"] = user_name
+		data["username"] = _user_name
 
 	return _submit("users/fetch", data)
 
@@ -205,15 +276,16 @@ func users_fetch(_user_name := "", _user_ids := []):
 # Private methods
 # Perform request and return data.
 func _submit(operation: String, data: Dictionary) -> _GameJolt:
-	var required_data_valid := _validate_required_data(data)
+	var required_data_error := _validate_required_data(data)
 	var final_url := _generate_url(OPERATIONS[operation], data)
 	if DEBUG: prints(final_url)
 
-	if not required_data_valid["success"]:
-		get_tree().create_timer(0.1).connect(
-			"timeout", self, "_on_TimerFailed_timeout",
-			[operation, required_data_valid]
-		)
+	if not _submit_requests:
+		_batch_requests.push_back(final_url)
+		return self
+
+	if required_data_error:
+		_set_local_error_response(operation, required_data_error)
 		return self
 
 	var http_request := _create_http_request()
@@ -225,6 +297,20 @@ func _submit(operation: String, data: Dictionary) -> _GameJolt:
 	)
 
 	return self
+
+
+func _create_http_request() -> HTTPRequest:
+	var _http_request := HTTPRequest.new()
+	add_child(_http_request)
+	_http_request.use_threads = true
+	return _http_request
+
+
+func _set_local_error_response(operation: String, message: String) -> void:
+	get_tree().create_timer(0.1).connect(
+		"timeout", self, "_on_TimerFailed_timeout",
+		[operation, {"success": false, "message": message}]
+	)
 
 
 # Generate request URL from operation and data.
@@ -248,23 +334,22 @@ func _generate_url(operation_url: String, data: Dictionary) -> String:
 
 
 # Validate if required data of request is provided.
-func _validate_required_data(data: Dictionary) -> Dictionary:
+func _validate_required_data(data: Dictionary) -> String:
 	for key in data.keys():
-		if typeof(data[key]) == TYPE_NIL or data[key] == "":
-			return {
-				"success": false,
-				"message": MESSAGE_ERROR_DATA_REQUIRED + str(key)
-			}
+		if typeof(data[key]) == TYPE_NIL \
+		or typeof(data[key]) == TYPE_STRING and data[key] == "":
+			return MESSAGE_ERROR_DATA_REQUIRED + str(key)
 
-	return {"success": true}
+	return ""
 
 
 # Discard null values from request data and ensure response format.
-func _get_valid_data(data: Dictionary) -> Dictionary:
+func _validate_optional_data(data: Dictionary) -> Dictionary:
 	var valid_data := {}
 
 	for key in data.keys():
-		if typeof(data[key]) == TYPE_NIL or data[key] == "":
+		if typeof(data[key]) == TYPE_NIL \
+		or typeof(data[key]) == TYPE_STRING and data[key] == "":
 			continue
 
 		valid_data[key] = data[key]
