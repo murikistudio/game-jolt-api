@@ -2,26 +2,34 @@ extends Node
 class_name _GameJolt
 
 
-# Inner classes
-class GameJoltError extends Reference:
-
-	# Raised when not all required data is provided in the request call.
-	static func data_required(key: String) -> void:
-		prints("Value is required, cannot be null:", str(key))
-
-
-	# Raised when a value cannot be provided along with another.
-	static func data_collision(keys: Array) -> void:
-		prints("Values cannot be used together:", str(keys))
-
-
 # Signals
-signal time_completed(response)
+signal batch_completed(response)
+signal data_store_fetch_completed(response)
+signal data_store_get_keys_completed(response)
+signal data_store_remove_completed(response)
+signal data_store_set_completed(response)
+signal data_store_update_completed(response)
 signal friends_completed(response)
+signal scores_add_completed(response)
+signal scores_fetch_completed(response)
+signal scores_get_rank_completed(response)
+signal scores_tables_completed(response)
+signal sessions_check_completed(response)
+signal sessions_close_completed(response)
+signal sessions_open_completed(response)
+signal sessions_ping_completed(response)
+signal time_completed(response)
+signal trophies_add_achieved_completed(response)
+signal trophies_fetch_completed(response)
+signal trophies_remove_achieved_completed(response)
+signal users_auth_completed(response)
+signal users_fetch_completed(response)
 
 
 # Constants
 const DEBUG := true
+const MESSAGE_ERROR_DATA_REQUIRED := "Value is required: "
+const MESSAGE_ERROR_DATA_COLLISION := "Values cannot be used together: "
 const RESPONSE_FAILED := {"success": false}
 const API_URL := "https://api.gamejolt.com/api/game/v1_2"
 const HEADERS := ["Access-Control-Allow-Origin: *"]
@@ -164,23 +172,49 @@ func trophies_remove_achieved(trophy_id: int):
 
 
 # Users
-func users_auth():
-	pass
+func users_auth() -> _GameJolt:
+	var data = {
+		"game_id": _game_id,
+		"username": user_name,
+		"user_token": user_token,
+	}
+
+	return _submit("users/auth", data)
 
 
-func users_fetch(user_name := "", user_id := ""):
-	pass
+func users_fetch(_user_name := "", _user_ids := []):
+	var data = {
+		"game_id": _game_id,
+	}
+
+	if _user_name:
+		data["username"] = _user_name
+
+	elif _user_ids.size():
+		for i in _user_ids.size():
+			_user_ids[i] = str(_user_ids[i])
+
+		data["user_id"] = ",".join(_user_ids)
+
+	else:
+		data["username"] = user_name
+
+	return _submit("users/fetch", data)
 
 
 # Private methods
 # Perform request and return data.
 func _submit(operation: String, data: Dictionary) -> _GameJolt:
-	if not _validate_required_data(data):
-		emit_signal(operation.replace("/", "_") + "_completed", RESPONSE_FAILED)
-		return self
-
+	var required_data_valid := _validate_required_data(data)
 	var final_url := _generate_url(OPERATIONS[operation], data)
-	if DEBUG: print(final_url)
+	if DEBUG: prints(final_url)
+
+	if not required_data_valid["success"]:
+		get_tree().create_timer(0.1).connect(
+			"timeout", self, "_on_TimerFailed_timeout",
+			[operation, required_data_valid]
+		)
+		return self
 
 	var http_request := _create_http_request()
 
@@ -214,13 +248,15 @@ func _generate_url(operation_url: String, data: Dictionary) -> String:
 
 
 # Validate if required data of request is provided.
-func _validate_required_data(data: Dictionary) -> bool:
+func _validate_required_data(data: Dictionary) -> Dictionary:
 	for key in data.keys():
 		if typeof(data[key]) == TYPE_NIL or data[key] == "":
-			GameJoltError.data_required(key)
-			return false
+			return {
+				"success": false,
+				"message": MESSAGE_ERROR_DATA_REQUIRED + str(key)
+			}
 
-	return true
+	return {"success": true}
 
 
 # Discard null values from request data and ensure response format.
@@ -250,6 +286,7 @@ func _params_encode(data: Dictionary, requests := []) -> String:
 
 
 # Event handlers
+# Executed when the request is finished.
 func _on_HTTPRequest_request_completed(
 	result: int,
 	response_code: int,
@@ -263,8 +300,20 @@ func _on_HTTPRequest_request_completed(
 	if result == HTTPRequest.RESULT_SUCCESS and response_code == HTTPClient.RESPONSE_OK:
 		var parsed_body: Dictionary = JSON.parse(body.get_string_from_utf8()).result
 		http_request.queue_free()
+
+		if parsed_body and parsed_body["response"]:
+			parsed_body = parsed_body["response"]
+		else:
+			parsed_body = RESPONSE_FAILED
+
 		emit_signal(signal_prefix + "_completed", parsed_body)
-		if DEBUG: print(parsed_body)
+		if DEBUG: prints(parsed_body)
 		return
 
-	emit_signal(signal_prefix + "_completed", {"success": false})
+	emit_signal(signal_prefix + "_completed", RESPONSE_FAILED)
+
+
+# Executed when a local error happens and the script must wait to respond.
+func _on_TimerFailed_timeout(operation: String, data: Dictionary) -> void:
+	if DEBUG: prints(data)
+	emit_signal(operation.replace("/", "_") + "_completed", data)
