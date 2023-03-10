@@ -271,7 +271,7 @@ func trophies_fetch(achieved = null, trophy_ids := []) -> _GameJolt:
 	}
 
 	var optional_data := {
-		"achieved": achieved,
+		"achieved": achieved if not trophy_ids.size() else null,
 		"trophy_id": ",".join(trophy_ids) if trophy_ids.size() else null,
 	}
 
