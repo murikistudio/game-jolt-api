@@ -12,8 +12,8 @@ onready var _text_edit_output: TextEdit = find_node("TextEditOutput")
 onready var _input_data := {
 	"game_id": GameJolt._game_id,
 	"private_key": GameJolt._private_key,
-	"user_name": "",
-	"user_token": "",
+	"user_name": "murikistudio",
+	"user_token": "murikistudio",
 	"users_fetch_user_ids": [],
 	"sessions_ping_status": "active", # "active" or "idle"
 	"batch_parallel": false,
@@ -23,7 +23,12 @@ onready var _input_data := {
 	"trophies_trophy_id": "188176",
 	"scores_table_id": "714294",
 	"scores_guest_name": "",
-	"scores_fetch_this_user": false
+	"scores_fetch_this_user": false,
+	"data_store_global_data": true,
+	"data_store_key": "data_store_key",
+	"data_store_value": "50",
+	"data_store_get_keys_pattern": "data_*",
+	"data_store_update_operation": "add",
 }
 
 
@@ -50,7 +55,7 @@ func update_input_data() -> void:
 		var value: String = line[1].strip_edges() if line.size() == 2 else ""
 		var final_value
 
-		if validate_json(value) == "":
+		if validate_json(value) == "" and value.begins_with("{") or value.begins_with("["):
 			final_value = JSON.parse(value).result
 		elif value.to_lower() in ["true", "false"]:
 			final_value = true if value.to_lower() == "true" else false
@@ -75,18 +80,42 @@ func _on_TextEditInput_focus_exited() -> void:
 	update_input_data()
 
 
+# Event handlers
+# Time
 func _on_ButtonTime_pressed() -> void:
 	_text_edit_output.text = WAIT_TEXT
 	var result: Dictionary = yield(GameJolt.time(), "time_completed")
 	set_text_edit_output(result)
 
 
+# Friends
 func _on_ButtonFriends_pressed() -> void:
 	_text_edit_output.text = WAIT_TEXT
 	var result: Dictionary = yield(GameJolt.friends(), "friends_completed")
 	set_text_edit_output(result)
 
 
+# Batch
+func _on_ButtonBatch_pressed() -> void:
+	_text_edit_output.text = WAIT_TEXT
+
+	GameJolt.batch_begin()
+	GameJolt.time()
+	GameJolt.users_auth()
+	GameJolt.batch_end()
+
+	var result: Dictionary = yield(
+		GameJolt.batch(
+			_input_data.get("batch_parallel", false),
+			_input_data.get("batch_break_on_error", false)
+		),
+		"batch_completed"
+	)
+
+	set_text_edit_output(result)
+
+
+# Users
 func _on_ButtonUsersAuth_pressed() -> void:
 	_text_edit_output.text = WAIT_TEXT
 	var result: Dictionary = yield(GameJolt.users_auth(), "users_auth_completed")
@@ -105,6 +134,7 @@ func _on_ButtonUsersFetch_pressed() -> void:
 	set_text_edit_output(result)
 
 
+# Sessions
 func _on_ButtonSessionsOpen_pressed() -> void:
 	_text_edit_output.text = WAIT_TEXT
 	var result: Dictionary = yield(GameJolt.sessions_open(), "sessions_open_completed")
@@ -132,25 +162,7 @@ func _on_ButtonSessionsClose_pressed() -> void:
 	set_text_edit_output(result)
 
 
-func _on_ButtonBatch_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-
-	GameJolt.batch_begin()
-	GameJolt.time()
-	GameJolt.users_auth()
-	GameJolt.batch_end()
-
-	var result: Dictionary = yield(
-		GameJolt.batch(
-			_input_data.get("batch_parallel", false),
-			_input_data.get("batch_break_on_error", false)
-		),
-		"batch_completed"
-	)
-
-	set_text_edit_output(result)
-
-
+# Trophies
 func _on_ButtonTrophiesFetch_pressed() -> void:
 	_text_edit_output.text = WAIT_TEXT
 	var result: Dictionary = yield(
@@ -185,6 +197,7 @@ func _on_ButtonTrophiesRemoveAchieved_pressed() -> void:
 	set_text_edit_output(result)
 
 
+# Scores
 func _on_ButtonScoresFetch_pressed() -> void:
 	_text_edit_output.text = WAIT_TEXT
 	var result: Dictionary = yield(
@@ -218,7 +231,7 @@ func _on_ButtonScoresAdd_pressed() -> void:
 		GameJolt.scores_add(
 			str(score) + " points",
 			score,
-			str(_input_data.get("scores_table_id", "")),
+			_input_data.get("scores_table_id", ""),
 			_input_data.get("scores_guest_name", ""),
 			'{"key": "value"}'
 		),
@@ -231,8 +244,72 @@ func _on_ButtonScoresGetRank_pressed() -> void:
 	_text_edit_output.text = WAIT_TEXT
 	var result: Dictionary = yield(
 		GameJolt.scores_get_rank(
-			1, str(_input_data.get("scores_table_id", ""))
+			1, _input_data.get("scores_table_id", "")
 		),
 		"scores_get_rank_completed"
+	)
+	set_text_edit_output(result)
+
+
+# Data Storage
+func _on_ButtonDataStoreFetch_pressed() -> void:
+	_text_edit_output.text = WAIT_TEXT
+	var result: Dictionary = yield(
+		GameJolt.data_store_fetch(
+			_input_data.get("data_store_key", ""),
+			_input_data.get("data_store_global_data", true)
+		),
+		"data_store_fetch_completed"
+	)
+	set_text_edit_output(result)
+
+
+func _on_ButtonDataStoreGetKeys_pressed() -> void:
+	_text_edit_output.text = WAIT_TEXT
+	var result: Dictionary = yield(
+		GameJolt.data_store_get_keys(
+			_input_data.get("data_store_get_keys_pattern", ""),
+			_input_data.get("data_store_global_data", true)
+		),
+		"data_store_get_keys_completed"
+	)
+	set_text_edit_output(result)
+
+
+func _on_ButtonDataStoreRemove_pressed() -> void:
+	_text_edit_output.text = WAIT_TEXT
+	var result: Dictionary = yield(
+		GameJolt.data_store_remove(
+			_input_data.get("data_store_key", ""),
+			_input_data.get("data_store_global_data", true)
+		),
+		"data_store_remove_completed"
+	)
+	set_text_edit_output(result)
+
+
+func _on_ButtonDataStoreSet_pressed() -> void:
+	_text_edit_output.text = WAIT_TEXT
+	var result: Dictionary = yield(
+		GameJolt.data_store_set(
+			_input_data.get("data_store_key", ""),
+			_input_data.get("data_store_value", ""),
+			_input_data.get("data_store_global_data", true)
+		),
+		"data_store_set_completed"
+	)
+	set_text_edit_output(result)
+
+
+func _on_ButtonDataStoreUpdate_pressed() -> void:
+	_text_edit_output.text = WAIT_TEXT
+	var result: Dictionary = yield(
+		GameJolt.data_store_update(
+			_input_data.get("data_store_key", ""),
+			_input_data.get("data_store_update_operation", ""),
+			_input_data.get("data_store_value", ""),
+			_input_data.get("data_store_global_data", true)
+		),
+		"data_store_update_completed"
 	)
 	set_text_edit_output(result)
