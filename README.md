@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="100%" alt="Game Jolt API for Godot" src="addons/gamejolt/example/screenshot.jpg">
+  <img width="75%" alt="Game Jolt API for Godot" src="addons/gamejolt/example/screenshot.jpg">
 </p>
 
 # Game Jolt API for Godot 3.5 (WIP)
