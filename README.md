@@ -12,8 +12,8 @@ For examples of use, see the [Documentation](#documentation) below. There's also
 </p>
 
 ## Documentation
-**Note:** A parameter followed by an `?` means that it's optional.
-Example: `data_store_get_keys(pattern?, global_data?) -> GameJolt`.
+**Note:** Any parameter followed by an `?` is optional.
+Example: `sessions_ping(status?) -> GameJolt`.
 
 #### Index
 - [Signals](#signals)
