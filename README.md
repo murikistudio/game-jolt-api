@@ -12,6 +12,9 @@ For examples of use, see the [Documentation](#documentation) below. There's also
 </p>
 
 ## Documentation
+**Note:** A parameter followed by an `?` means that it's optional.
+Example: `data_store_get_keys(pattern?, global_data?) -> GameJolt`.
+
 #### Index
 - [Signals](#signals)
 - [General](#general)
@@ -100,7 +103,7 @@ Set the user token for auth and other user scope tasks.
 Get current user game token.
 
 ### Users
-#### [users_fetch](https://gamejolt.com/game-api/doc/users/fetch)(user_name, user_ids) -> GameJolt
+#### [users_fetch](https://gamejolt.com/game-api/doc/users/fetch)(user_name?, user_ids?) -> GameJolt
 Returns a user's data.
 Emits `users_fetch_completed`.
 
@@ -126,7 +129,7 @@ Emits `sessions_open_completed`.
 - You can only have one open session for a user at a time. If you try to open a new session while one is running, the system will close out the current one before opening the new one.
 - Requires user name and token to be set on `GameJolt` singleton.
 
-#### [sessions_ping](https://gamejolt.com/game-api/doc/sessions/ping)(status) -> GameJolt
+#### [sessions_ping](https://gamejolt.com/game-api/doc/sessions/ping)(status?) -> GameJolt
 Pings an open session to tell the system that it's still active.
 If the session hasn't been pinged within 120 seconds, the system will close the session and you will have to open another one.
 It's recommended that you ping about every 30 seconds or so to keep the system from clearing out your session.
@@ -153,7 +156,7 @@ Emits `sessions_close_completed`.
 **Note:** Requires user name and token to be set on `GameJolt` singleton.
 
 ### Scores
-#### [scores_fetch](https://gamejolt.com/game-api/doc/scores/fetch)(limit, table_id, guest, better_than, worse_than, this_user) -> GameJolt
+#### [scores_fetch](https://gamejolt.com/game-api/doc/scores/fetch)(limit?, table_id?, guest?, better_than?, worse_than?, this_user?) -> GameJolt
 Returns a list of scores either for a user or globally for a game.
 Emits `scores_fetch_completed`.
 
@@ -176,7 +179,7 @@ Emits `scores_fetch_completed`.
 Returns a list of high score tables for a game.
 Emits `scores_tables_completed`.
 
-#### [scores_add](https://gamejolt.com/game-api/doc/scores/add)(score, sort, table_id, guest, extra_data) -> GameJolt
+#### [scores_add](https://gamejolt.com/game-api/doc/scores/add)(score, sort, table_id?, guest?, extra_data?) -> GameJolt
 Adds a score for a user or guest.
 Emits `scores_add_completed`.
 
@@ -191,7 +194,7 @@ Emits `scores_add_completed`.
 - The `extra_data` value is only retrievable through the API and your game's dashboard. It's never displayed publicly to users on the site. If there is other data associated with the score such as time played, coins collected, etc., you should definitely include it. It will be helpful in cases where you believe a gamer has illegitimately achieved a high score.
 - If `table_id` is left blank, the score will be submitted to the primary high score table.
 
-#### [scores_get_rank](https://gamejolt.com/game-api/doc/scores/get-rank)(sort, table_id) -> GameJolt
+#### [scores_get_rank](https://gamejolt.com/game-api/doc/scores/get-rank)(sort, table_id?) -> GameJolt
 Returns the rank of a particular score on a score table.
 Emits `scores_get_rank_completed`.
 
@@ -203,12 +206,12 @@ Emits `scores_get_rank_completed`.
 - If the score is not represented by any rank on the score table, the request will return the rank that is closest to the requested score.
 
 ### Trophies
-#### [trophies_fetch](https://gamejolt.com/game-api/doc/trophies/fetch)(achieved, trophy_ids) -> GameJolt
+#### [trophies_fetch](https://gamejolt.com/game-api/doc/trophies/fetch)(achieved?, trophy_ids?) -> GameJolt
 Returns one trophy or multiple trophies, depending on the parameters passed in.
 Emits `trophies_fetch_completed`.
 
-- `sort: bool|null` -> Pass in `true` to return only the achieved trophies for a user. Pass in `false` to return only trophies the user hasn't achieved. Pass `null` to retrieve all trophies.
-- `trophy_ids: Array[String|int]` -> If you would like to return one or multiple trophies, pass trophy IDs here if you want to return a subset of all the trophies.
+- `sort: bool|null` (optional) -> Pass in `true` to return only the achieved trophies for a user. Pass in `false` to return only trophies the user hasn't achieved. Pass `null` to retrieve all trophies.
+- `trophy_ids: Array[String|int]` (optional) -> If you would like to return one or multiple trophies, pass trophy IDs here if you want to return a subset of all the trophies.
 
 **Notes:**
 - Passing `trophy_ids` will ignore the `achieved` parameter if it is passed.
@@ -231,57 +234,57 @@ Emits `trophies_remove_achieved_completed`.
 **Note:** Requires user name and token to be set on `GameJolt` singleton.
 
 ### Data Storage
-#### [data_store_set](https://gamejolt.com/game-api/doc/data-store/set)(key, data, global_data) -> GameJolt
+#### [data_store_set](https://gamejolt.com/game-api/doc/data-store/set)(key, data, global_data?) -> GameJolt
 Sets data in the data store.
 Emits `data_store_set_completed`.
 
 - `key: String` -> The key of the data item you'd like to set.
 - `data: String|Array|Dictionary` -> The data you'd like to set.
-- `global_data: bool` -> If set to `true`, ignores user name and token set in `GameJolt` and processes global data instead of user data.
+- `global_data: bool` (optional) -> If set to `true`, ignores user name and token set in `GameJolt` and processes global data instead of user data.
 
 **Notes:**
 - You can create new data store items by passing in a key that doesn't yet exist in the data store.
 - If `global_data` is `false`, requires user name and token to be set on `GameJolt` singleton.
 
-#### [data_store_update](https://gamejolt.com/game-api/doc/data-store/update)(key, operation, value, global_data) -> GameJolt
+#### [data_store_update](https://gamejolt.com/game-api/doc/data-store/update)(key, operation, value, global_data?) -> GameJolt
 Updates data in the data store.
 Emits `data_store_update_completed`.
 
 - `key: String` -> The key of the data item you'd like to update.
 - `operation: String` -> The operation you'd like to perform.
 - `value: String|int` -> The value you'd like to apply to the data store item.
-- `global_data: bool` -> If set to `true`, ignores user name and token set in `GameJolt` and processes global data instead of user data.
+- `global_data: bool` (optional) -> If set to `true`, ignores user name and token set in `GameJolt` and processes global data instead of user data.
 
 **Notes:**
 - Valid values for `operation`: `"add"`, `"subtract"`, `"multiply"`, `"divide"`, `"append"` and `"prepend"`.
 - If `global_data` is `false`, requires user name and token to be set on `GameJolt` singleton.
 
-#### [data_store_remove](https://gamejolt.com/game-api/doc/data-store/remove)(key, global_data) -> GameJolt
+#### [data_store_remove](https://gamejolt.com/game-api/doc/data-store/remove)(key, global_data?) -> GameJolt
 Removes data from the data store.
 Emits `data_store_remove_completed`.
 
 - `key: String` -> The key of the data item you'd like to remove.
-- `global_data: bool` -> If set to `true`, ignores user name and token set in `GameJolt` and processes global data instead of user data.
+- `global_data: bool` (optional) -> If set to `true`, ignores user name and token set in `GameJolt` and processes global data instead of user data.
 
 **Notes:**
 - If `global_data` is `false`, requires user name and token to be set on `GameJolt` singleton.
 
-#### [data_store_fetch](https://gamejolt.com/game-api/doc/data-store/fetch)(key, global_data) -> GameJolt
+#### [data_store_fetch](https://gamejolt.com/game-api/doc/data-store/fetch)(key, global_data?) -> GameJolt
 Returns data from the data store.
 Emits `data_store_fetch_completed`.
 
 - `key: String` -> The key of the data item you'd like to fetch.
-- `global_data: bool` -> If set to `true`, ignores user name and token set in `GameJolt` and processes global data instead of user data.
+- `global_data: bool` (optional) -> If set to `true`, ignores user name and token set in `GameJolt` and processes global data instead of user data.
 
 **Notes:**
 - If `global_data` is `false`, requires user name and token to be set on `GameJolt` singleton.
 
-#### [data_store_get_keys](https://gamejolt.com/game-api/doc/data-store/get-keys)(pattern, global_data) -> GameJolt
+#### [data_store_get_keys](https://gamejolt.com/game-api/doc/data-store/get-keys)(pattern?, global_data?) -> GameJolt
 Returns either all the keys in the game's global data store, or all the keys in a user's data store.
 Emits `data_store_get_keys_completed`.
 
-- `pattern: String` -> The pattern to apply to the key names in the data store.
-- `global_data: bool` -> If set to `true`, ignores user name and token set in `GameJolt` and processes global data instead of user data.
+- `pattern: String` (optional) -> The pattern to apply to the key names in the data store.
+- `global_data: bool` (optional) -> If set to `true`, ignores user name and token set in `GameJolt` and processes global data instead of user data.
 
 **Notes:**
 - If you apply a pattern to the request, only keys with applicable key names will be returned. The placeholder character for patterns is `"*"`.
@@ -321,7 +324,7 @@ GameJolt.batch_end()
 var result: Dictionary = yield(GameJolt.batch(), "batch_completed")
 ```
 
-#### [batch](https://gamejolt.com/game-api/doc/batch)(parallel, break_on_error) -> GameJolt
+#### [batch](https://gamejolt.com/game-api/doc/batch)(parallel?, break_on_error?) -> GameJolt
 Perform the batch request after gathering requests with `batch_begin` and `batch_end`.
 Emits `batch_completed`.
 
