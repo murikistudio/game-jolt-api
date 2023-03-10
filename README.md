@@ -26,8 +26,8 @@ For examples of use, see the [Documentation](#documentation) below. There's also
 
 #### Initial Setup
 - Enable the plugin on `Project Settings > Plugins`
-- Set the game ID and private key to be able to perform API requests on `Project Settings > General > Game Jolt > Default` (`game_jolt/default/game_id` and `game_jolt/default/private_key`, respectively).
-- Optionally, you can set a default user name and token on `Project Settings > General > Game Jolt > Debug` (`game_jolt/debug/user_name` and `game_jolt/debug/user_token`, respectively).
+- Set the game ID and private key to be able to perform API requests on `Project Settings > General > Game Jolt > Default`.
+- Optionally, you can set a default user name and token on `Project Settings > General > Game Jolt > Debug`.
     - Those properties will only be used as defaults on editor and debug builds, allowing easier testing and prototyping.
     - On release builds you must set the user name and token manually. See [General](#general) methods.
 
