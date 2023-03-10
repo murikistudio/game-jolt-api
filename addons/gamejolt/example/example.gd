@@ -3,6 +3,7 @@ extends Control
 
 const INDENT := "    "
 const WAIT_TEXT := "Requesting..."
+const SECRET_FIELDS := ["private_key", "user_token"]
 
 
 onready var _line_edit_game_id: LineEdit = find_node("LineEditGameId")
@@ -12,8 +13,8 @@ onready var _container_parameters: Container = find_node("ContainerParameters")
 onready var _input_data := {
 	"game_id": GameJolt._game_id,
 	"private_key": GameJolt._private_key,
-	"user_name": "",
-	"user_token": "",
+	"user_name": GameJolt.get_user_name(),
+	"user_token": GameJolt.get_user_token(),
 	"users_fetch_user_ids": [],
 	"sessions_ping_status": "active", # "active" or "idle"
 	"batch_parallel": false,
@@ -70,6 +71,9 @@ func add_parameter_controls() -> void:
 			line_edit.placeholder_text = normalized_text
 			line_edit.text = str(value)
 			line_edit.connect("text_changed", self, "_on_LineEdit_text_changed", [key])
+
+			if key in SECRET_FIELDS:
+				line_edit.secret = true
 
 		if label:
 			label.text = normalized_text
