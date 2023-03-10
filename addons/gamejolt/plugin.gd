@@ -36,7 +36,6 @@ func disable_plugin() -> void:
 
 
 func has_settings() -> bool:
-
 	for setting in DEFAULT_SETTINGS:
 		if not ProjectSettings.has_setting(setting["name"]):
 			return false
@@ -45,7 +44,6 @@ func has_settings() -> bool:
 
 
 func add_default_settings():
-
 	for _setting in DEFAULT_SETTINGS:
 		var setting: Dictionary = _setting
 
@@ -66,7 +64,6 @@ func add_default_settings():
 
 
 func remove_default_settings():
-
 	for _setting in DEFAULT_SETTINGS:
 		var setting: Dictionary = _setting
 
