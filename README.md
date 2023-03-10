@@ -264,7 +264,7 @@ var result: Dictionary = yield(GameJolt.batch(), "batch_completed")
 ```
 
 #### [batch](https://gamejolt.com/game-api/doc/batch)(parallel, break_on_error) -> GameJolt
-Perform the batch request after gathering requests with `batch_begin` and `batch end`.
+Perform the batch request after gathering requests with `batch_begin` and `batch_end`.
 
 - `parallel: bool` (optional) -> By default, each sub-request is processed on the servers sequentially. If this is set to `true`, then all sub-requests are processed at the same time, without waiting for the previous sub-request to finish before the next one is started.
 - `break_on_error: bool` (optional) -> If this is set to `true`, one sub-request failure will cause the entire batch to stop processing subsequent sub-requests and return a value of `false` for success.
