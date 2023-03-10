@@ -68,6 +68,7 @@ onready var _game_id: String = ProjectSettings.get_setting("game_jolt/default/ga
 onready var _private_key: String = ProjectSettings.get_setting("game_jolt/default/private_key")
 
 
+# Setters and getters
 func set_user_name(value: String) -> void:
 	_user_name = value
 
@@ -84,14 +85,14 @@ func get_user_token() -> String:
 	return _user_token
 
 
+# Public methods
 # Batch Request
 func batch(parallel := false, break_on_error := false) -> _GameJolt:
 	if parallel and break_on_error:
-		_set_local_error_response(
+		return _dispatch_local_error_response(
 			"batch",
-			"Batch values cannot be used together: 'parallel', 'break_on_error'"
+			"Values 'parallel' and 'break_on_error' are mutually exclusive"
 		)
-		return self
 
 	for i in _batch_requests.size():
 		var request: String = _batch_requests[i]
@@ -100,7 +101,7 @@ func batch(parallel := false, break_on_error := false) -> _GameJolt:
 		request += "&signature=" + (request + _private_key).md5_text()
 		_batch_requests[i] = request
 
-	var data = {
+	var data := {
 		"game_id": _game_id,
 		"requests": _batch_requests if _batch_requests.size() else null
 	}
@@ -114,39 +115,44 @@ func batch(parallel := false, break_on_error := false) -> _GameJolt:
 	return _submit("batch", data)
 
 
-func batch_begin():
+func batch_begin() -> void:
 	_submit_requests = false
 	_batch_requests = []
 
 
-func batch_end():
+func batch_end() -> void:
 	_submit_requests = true
 
 
 # Data Store
-func data_store_fetch(key: String, global_data := false):
-	pass
+func data_store_fetch(key: String, global_data := false) -> _GameJolt:
+	return self
 
 
-func data_store_get_keys(pattern := "", global_data := false):
-	pass
+func data_store_get_keys(pattern := "", global_data := false) -> _GameJolt:
+	return self
 
 
-func data_store_remove(key: String, global_data := false):
-	pass
+func data_store_remove(key: String, global_data := false) -> _GameJolt:
+	return self
 
 
-func data_store_set(key: String, data: Dictionary, global_data := false):
-	pass
+func data_store_set(key: String, data, global_data := false) -> _GameJolt:
+	if typeof(data) in [TYPE_ARRAY, TYPE_DICTIONARY]:
+		data = JSON.print(data, "", true)
+	else:
+		data = str(data)
+
+	return self
 
 
-func data_store_update(key: String, operation: String, value: String, global_data := false):
-	pass
+func data_store_update(key: String, operation: String, value: String, global_data := false) -> _GameJolt:
+	return self
 
 
 # Friends
 func friends() -> _GameJolt:
-	var data = {
+	var data := {
 		"game_id": _game_id,
 		"username": _user_name,
 		"user_token": _user_token,
@@ -156,25 +162,76 @@ func friends() -> _GameJolt:
 
 
 # Scores
-func scores_add(score: String, sort: int, table_id := 0, guest := "", extra_data := ""):
-	pass
+func scores_add(score: String, sort: int, table_id := "", guest := "", extra_data := "") -> _GameJolt:
+	var data := {
+		"game_id": _game_id,
+		"score": score,
+		"sort": sort,
+	}
+
+	var optional_data := {
+		"username": guest if guest else _user_name,
+		"user_token": null if guest else _user_token,
+		"table_id": table_id if table_id else null,
+		"guest": guest if guest else null,
+		"extra_data": extra_data if extra_data else null,
+	}
+
+	data.merge(_validate_optional_data(optional_data))
+	return _submit("scores/add", data)
 
 
-func scores_fetch(limit := 0, table_id := 0, guest := "", better_than := 0, worse_than := 0, this_user := false):
-	pass
+func scores_fetch(limit := 0, table_id = "", guest := "", better_than := 0, worse_than := 0, this_user := false) -> _GameJolt:
+	var data := {
+		"game_id": _game_id,
+	}
+
+	var optional_data := {
+		"username": _user_name if this_user else guest if guest else null,
+		"user_token": _user_token if this_user else null,
+		"limit":  limit if limit else null,
+		"table_id":  table_id if table_id else null,
+		"guest": guest if guest else null,
+		"better_than": better_than if better_than else null,
+		"worse_than": worse_than if worse_than else null,
+	}
+
+	data.merge(_validate_optional_data(optional_data))
+
+	if data.get("username") and data.get("guest"):
+		return _dispatch_local_error_response(
+			"scores/fetch",
+			"Parameters 'username' and 'guest' are mutually exclusive"
+		)
+
+	return _submit("scores/fetch", data)
 
 
-func scores_get_rank(sort := 0, table_id := 0):
-	pass
+func scores_get_rank(sort: int, table_id := "") -> _GameJolt:
+	var data := {
+		"game_id": _game_id,
+		"sort": sort,
+	}
+
+	var optional_data := {
+		"table_id": table_id if table_id else null,
+	}
+
+	data.merge(_validate_optional_data(optional_data))
+	return _submit("scores/get-rank", data)
 
 
-func scores_tables():
-	pass
+func scores_tables() -> _GameJolt:
+	var data := {
+		"game_id": _game_id,
+	}
+
+	return _submit("scores/tables", data)
 
 
 # Sessions
 func sessions_check() -> _GameJolt:
-	var data = {
+	var data := {
 		"game_id": _game_id,
 		"username": _user_name,
 		"user_token": _user_token,
@@ -184,7 +241,7 @@ func sessions_check() -> _GameJolt:
 
 
 func sessions_close() -> _GameJolt:
-	var data = {
+	var data := {
 		"game_id": _game_id,
 		"username": _user_name,
 		"user_token": _user_token,
@@ -194,7 +251,7 @@ func sessions_close() -> _GameJolt:
 
 
 func sessions_open() -> _GameJolt:
-	var data = {
+	var data := {
 		"game_id": _game_id,
 		"username": _user_name,
 		"user_token": _user_token,
@@ -204,16 +261,18 @@ func sessions_open() -> _GameJolt:
 
 
 func sessions_ping(status := "") -> _GameJolt:
-	var data = {
+	var data := {
 		"game_id": _game_id,
 		"username": _user_name,
 		"user_token": _user_token,
 	}
 
 	if status:
-		if not status in []:
-			_set_local_error_response("sessions/ping", "Ping status must be 'active' or 'idle'")
-			return self
+		if not status in ["active", "idle"]:
+			return _dispatch_local_error_response(
+				"sessions/ping",
+				"Ping status must be 'active' or 'idle'"
+			)
 
 		data["status"] = status
 
@@ -222,7 +281,7 @@ func sessions_ping(status := "") -> _GameJolt:
 
 # Time
 func time() -> _GameJolt:
-	var data = {
+	var data := {
 		"game_id": _game_id,
 	}
 
@@ -230,21 +289,47 @@ func time() -> _GameJolt:
 
 
 # Trophies
-func trophies_add_achieved(trophy_id: int):
-	pass
+func trophies_fetch(achieved = null, trophy_ids := []) -> _GameJolt:
+	var data := {
+		"game_id": _game_id,
+		"username": _user_name,
+		"user_token": _user_token,
+	}
+
+	var optional_data := {
+		"achieved": achieved,
+		"trophy_id": ",".join(trophy_ids) if trophy_ids.size() else null,
+	}
+
+	data.merge(_validate_optional_data(optional_data))
+	return _submit("trophies/fetch", data)
 
 
-func trophies_fetch(achieved: bool = true, trophy_id := 0):
-	pass
+func trophies_add_achieved(trophy_id):
+	var data := {
+		"game_id": _game_id,
+		"username": _user_name,
+		"user_token": _user_token,
+		"trophy_id": trophy_id,
+	}
+
+	return _submit("trophies/add-achieved", data)
 
 
-func trophies_remove_achieved(trophy_id: int):
-	pass
+func trophies_remove_achieved(trophy_id):
+	var data := {
+		"game_id": _game_id,
+		"username": _user_name,
+		"user_token": _user_token,
+		"trophy_id": trophy_id,
+	}
+
+	return _submit("trophies/remove-achieved", data)
 
 
 # Users
 func users_auth() -> _GameJolt:
-	var data = {
+	var data := {
 		"game_id": _game_id,
 		"username": _user_name,
 		"user_token": _user_token,
@@ -254,7 +339,7 @@ func users_auth() -> _GameJolt:
 
 
 func users_fetch(_user_name := "", _user_ids := []):
-	var data = {
+	var data := {
 		"game_id": _game_id,
 	}
 
@@ -285,8 +370,7 @@ func _submit(operation: String, data: Dictionary) -> _GameJolt:
 		return self
 
 	if required_data_error:
-		_set_local_error_response(operation, required_data_error)
-		return self
+		return _dispatch_local_error_response(operation, required_data_error)
 
 	var http_request := _create_http_request()
 
@@ -306,11 +390,12 @@ func _create_http_request() -> HTTPRequest:
 	return _http_request
 
 
-func _set_local_error_response(operation: String, message: String) -> void:
+func _dispatch_local_error_response(operation: String, message: String) -> _GameJolt:
 	get_tree().create_timer(0.1).connect(
 		"timeout", self, "_on_TimerFailed_timeout",
 		[operation, {"success": false, "message": message}]
 	)
+	return self
 
 
 # Generate request URL from operation and data.
@@ -336,9 +421,13 @@ func _generate_url(operation_url: String, data: Dictionary) -> String:
 # Validate if required data of request is provided.
 func _validate_required_data(data: Dictionary) -> String:
 	for key in data.keys():
-		if typeof(data[key]) == TYPE_NIL \
-		or typeof(data[key]) == TYPE_STRING and data[key] == "":
+		var value = data[key]
+
+		if typeof(value) == TYPE_NIL or typeof(value) == TYPE_STRING and not value:
 			return MESSAGE_ERROR_DATA_REQUIRED + str(key)
+
+		if typeof(value) == TYPE_BOOL:
+			data[key] = str(value).to_lower()
 
 	return ""
 
@@ -348,11 +437,15 @@ func _validate_optional_data(data: Dictionary) -> Dictionary:
 	var valid_data := {}
 
 	for key in data.keys():
-		if typeof(data[key]) == TYPE_NIL \
-		or typeof(data[key]) == TYPE_STRING and data[key] == "":
+		var value = data[key]
+
+		if typeof(value) == TYPE_NIL or typeof(value) == TYPE_STRING and not value:
 			continue
 
-		valid_data[key] = data[key]
+		if typeof(value) == TYPE_BOOL:
+			value = str(value).to_lower()
+
+		valid_data[key] = value
 
 	return valid_data
 
@@ -380,7 +473,7 @@ func _on_HTTPRequest_request_completed(
 	operation: String,
 	http_request: HTTPRequest
 ) -> void:
-	var signal_prefix := operation.replace("/", "_")
+	var signal_prefix := operation.replace("/", "_").replace("-", "_")
 
 	if result == HTTPRequest.RESULT_SUCCESS and response_code == HTTPClient.RESPONSE_OK:
 		var parsed_body: Dictionary = JSON.parse(body.get_string_from_utf8()).result
