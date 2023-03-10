@@ -155,7 +155,25 @@ Returns the rank of a particular score on a score table.
 - If the score is not represented by any rank on the score table, the request will return the rank that is closest to the requested score.
 
 ### Trophies
-TODO
+#### [trophies_fetch](https://gamejolt.com/game-api/doc/trophies/fetch)(achieved, trophy_ids) -> GameJolt
+Returns one trophy or multiple trophies, depending on the parameters passed in.
+
+- `sort: bool|null` -> Pass in `true` to return only the achieved trophies for a user. Pass in `false` to return only trophies the user hasn't achieved. Pass `null` to retrieve all trophies.
+- `trophy_ids: Array[String|int]` -> If you would like to return one or multiple trophies, pass trophy IDs here if you want to return a subset of all the trophies.
+
+**Notes:**
+- Passing `trophy_ids` will ignore the `achieved` parameter if it is passed.
+- Requires user name and token to be set on `GameJolt` singleton.
+
+#### [trophies_add_achieved](https://gamejolt.com/game-api/doc/trophies/add-achieved)(trophy_id) -> GameJolt
+Sets a trophy as achieved for a particular user.
+
+- `trophy_id: String|int` -> The ID of the trophy to add for the user.
+
+#### [trophies_remove_achieved](https://gamejolt.com/game-api/doc/trophies/remove-achieved)(trophy_id) -> GameJolt
+Remove a previously achieved trophy for a particular user.
+
+- `trophy_id: String|int` -> The ID of the trophy to remove from the user.
 
 ### Data Storage
 TODO
