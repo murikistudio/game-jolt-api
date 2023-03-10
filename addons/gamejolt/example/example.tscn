@@ -432,17 +432,22 @@ margin_bottom = 38.0
 size_flags_horizontal = 3
 size_flags_vertical = 7
 size_flags_stretch_ratio = 0.2
-text = "Input"
+text = "Parameters"
 align = 1
 valign = 2
 
-[node name="TextEditInput" type="TextEdit" parent="MarginContainer/VBoxContainer/VBoxContainer2/VBoxContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/VBoxContainer2/VBoxContainer"]
 margin_top = 42.0
 margin_right = 470.0
 margin_bottom = 235.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-show_line_numbers = true
+
+[node name="ContainerParameters" type="HFlowContainer" parent="MarginContainer/VBoxContainer/VBoxContainer2/VBoxContainer/ScrollContainer"]
+margin_right = 470.0
+margin_bottom = 193.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="VBoxContainer2" type="VBoxContainer" parent="MarginContainer/VBoxContainer/VBoxContainer2"]
 margin_left = 474.0
@@ -491,4 +496,3 @@ show_line_numbers = true
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/ButtonFriends" to="." method="_on_ButtonFriends_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/ButtonTime" to="." method="_on_ButtonTime_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/ButtonBatch" to="." method="_on_ButtonBatch_pressed"]
-[connection signal="focus_exited" from="MarginContainer/VBoxContainer/VBoxContainer2/VBoxContainer/TextEditInput" to="." method="_on_TextEditInput_focus_exited"]

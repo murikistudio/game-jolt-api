@@ -7,13 +7,13 @@ const WAIT_TEXT := "Requesting..."
 
 onready var _line_edit_game_id: LineEdit = find_node("LineEditGameId")
 onready var _line_edit_private_key: LineEdit = find_node("LineEditPrivateKey")
-onready var _text_edit_input: TextEdit = find_node("TextEditInput")
 onready var _text_edit_output: TextEdit = find_node("TextEditOutput")
+onready var _container_parameters: Container = find_node("ContainerParameters")
 onready var _input_data := {
 	"game_id": GameJolt._game_id,
 	"private_key": GameJolt._private_key,
-	"user_name": "murikistudio",
-	"user_token": "murikistudio",
+	"user_name": "",
+	"user_token": "",
 	"users_fetch_user_ids": [],
 	"sessions_ping_status": "active", # "active" or "idle"
 	"batch_parallel": false,
@@ -33,39 +33,11 @@ onready var _input_data := {
 
 
 func _ready() -> void:
-	init_input_data()
-	update_input_data()
+	add_parameter_controls()
+	update_parameters_data()
 
 
-func init_input_data() -> void:
-	var lines := []
-
-	for key in _input_data.keys():
-		lines.push_back(key + " = " + str(_input_data[key]))
-
-	_text_edit_input.text = "\n".join(lines)
-
-
-func update_input_data() -> void:
-	var lines := _text_edit_input.text.split("\n", false)
-
-	for line in lines:
-		line = line.split("=", false)
-		var key: String = line[0].strip_edges() if line.size() == 2 else ""
-		var value: String = line[1].strip_edges() if line.size() == 2 else ""
-		var final_value
-
-		if validate_json(value) == "" and value.begins_with("{") or value.begins_with("["):
-			final_value = JSON.parse(value).result
-		elif value.to_lower() in ["true", "false"]:
-			final_value = true if value.to_lower() == "true" else false
-		elif value.to_lower() == "null":
-			final_value = null
-		else:
-			final_value = value
-
-		_input_data[key] = final_value
-
+func update_parameters_data() -> void:
 	GameJolt._game_id = _input_data.get("game_id", "")
 	GameJolt._private_key = _input_data.get("private_key", "")
 	GameJolt.set_user_name(_input_data.get("user_name", ""))
@@ -76,11 +48,57 @@ func set_text_edit_output(result: Dictionary) -> void:
 	_text_edit_output.text = JSON.print(result, INDENT)
 
 
-func _on_TextEditInput_focus_exited() -> void:
-	update_input_data()
+func add_parameter_controls() -> void:
+	for key in _input_data.keys():
+		var value = _input_data[key]
+		var vbox_container := VBoxContainer.new()
+		var control: Control
+		var label: Label
+		var normalized_text := (key as String).replace("_", " ").capitalize()
+
+		if typeof(value) == TYPE_BOOL:
+			var check_box := CheckBox.new()
+			control = check_box
+			check_box.text = " " + normalized_text
+			check_box.pressed = value
+			check_box.connect("toggled", self, "_on_CheckBox_toggled", [key])
+
+		else:
+			var line_edit := LineEdit.new()
+			label = Label.new()
+			control = line_edit
+			line_edit.placeholder_text = key
+			line_edit.text = str(value)
+			line_edit.connect("text_changed", self, "_on_LineEdit_text_changed", [key])
+
+		if label:
+			label.text = normalized_text
+			label.align = Label.ALIGN_CENTER
+			label.valign = Label.VALIGN_BOTTOM
+			label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+			vbox_container.add_child(label)
+
+		control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		control.size_flags_vertical = Control.SIZE_EXPAND_FILL
+
+		vbox_container.rect_min_size.x = 130
+		vbox_container.rect_min_size.y = 45
+		vbox_container.add_child(control)
+		_container_parameters.add_child(vbox_container)
 
 
 # Event handlers
+func _on_CheckBox_toggled(pressed: bool, property: String) -> void:
+	_input_data[property] = pressed
+	update_parameters_data()
+
+
+func _on_LineEdit_text_changed(new_text: String, property: String) -> void:
+	_input_data[property] = new_text
+	update_parameters_data()
+
+
 # Time
 func _on_ButtonTime_pressed() -> void:
 	_text_edit_output.text = WAIT_TEXT
