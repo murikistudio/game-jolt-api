@@ -1,13 +1,19 @@
+<p align="center">
+  <img max-height="300" alt="Game Jolt API for Godot" src="addons/gamejolt/icon.png">
+</p>
 <h1 align="center">Game Jolt API for Godot</h1>
+
+Wrapper for the Game Jolt API running through HTTP requests. It contains all Game Jolt API endpoints and aims to simplify its use where it's possible. Compatible with **Godot 3.5.x**.
+
+For examples of use, see the [Documentation](#documentation) below. There's also an example scene in `addons/gamejolt/example` containing all endpoints and parameters on a graphical interface.
+
 <p align="center">
   <img width="75%" alt="Game Jolt API for Godot" src="addons/gamejolt/example/screenshot.jpg">
 </p>
 
-Wrapper for the Game Jolt API running through HTTP requests. It contains all Game Jolt API endpoints and aims to simplify its use where it's possible. Compatible with **Godot 3.5.x**.
-
 ## Documentation
-You can use the methods below on the singleton `GameJolt` when the plugin is enabled.
-
+#### Index
+- [Signals](#signals)
 - [General](#general)
 - [Users](#users)
 - [Sessions](#sessions)
@@ -18,8 +24,17 @@ You can use the methods below on the singleton `GameJolt` when the plugin is ena
 - [Time](#time)
 - [Batch Calls](#batch-calls)
 
-### Handling Request Responses
-Each method emits a signal after a request is completed, be it successful or not.
+#### Initial Setup
+- Enable the plugin on `Project Settings > Plugins`
+- Set the game ID and private key to be able to perform API requests on `Project Settings > General > Game Jolt > Default`.
+- Optionally, you can set a default user name and token on `Project Settings > General > Game Jolt > Debug`.
+    - Those properties will only be used as defaults on editor and debug builds, allowing easier testing and prototyping.
+    - On release builds you must set the user name and token manually. See [General](#general) methods.
+
+After this setup you can perform the API requests by using the methods below on the singleton `GameJolt` on your code.
+
+#### Handling Request Responses
+Each Game Jolt API method emits a signal after a request is completed, be it successful or not.
 You can connect specific signals to capture responses on method callbacks:
 
 ```gdscript
@@ -39,6 +54,31 @@ func _onButtonTime_pressed() -> void:
     var result: Dictionary = yield(GameJolt.time(), "time_completed")
     # Do something with the request result...
 ```
+
+**Note:** All signals return a `response: Dictionary`.
+
+### Signals
+- `users_fetch_completed(response: Dictionary)`
+- `users_auth_completed(response: Dictionary)`
+- `sessions_open_completed(response: Dictionary)`
+- `sessions_ping_completed(response: Dictionary)`
+- `sessions_check_completed(response: Dictionary)`
+- `sessions_close_completed(response: Dictionary)`
+- `scores_fetch_completed(response: Dictionary)`
+- `scores_tables_completed(response: Dictionary)`
+- `scores_add_completed(response: Dictionary)`
+- `scores_get_rank_completed(response: Dictionary)`
+- `trophies_fetch_completed(response: Dictionary)`
+- `trophies_add_achieved_completed(response: Dictionary)`
+- `trophies_remove_achieved_completed(response: Dictionary)`
+- `data_store_set_completed(response: Dictionary)`
+- `data_store_update_completed(response: Dictionary)`
+- `data_store_remove_completed(response: Dictionary)`
+- `data_store_fetch_completed(response: Dictionary)`
+- `data_store_get_keys_completed(response: Dictionary)`
+- `friends_completed(response: Dictionary)`
+- `time_completed(response: Dictionary)`
+- `batch_completed(response: Dictionary)`
 
 ### General
 General methods to configure `GameJolt` singleton locally.
@@ -62,11 +102,10 @@ Get current user game token.
 ### Users
 #### [users_fetch](https://gamejolt.com/game-api/doc/users/fetch)(user_name, user_ids) -> GameJolt
 Returns a user's data.
+Emits `users_fetch_completed`.
 
 - `user_name: String` (optional) -> The username of the user whose data you'd like to fetch.
 - `user_ids: Array[String|int]` (optional) -> The IDs of the users whose data you'd like to fetch.
-
-**Emits:** `users_fetch_completed`
 
 **Note:** The parameters `user_name` and `user_ids` are mutually exclusive, you should use only one of them, or none.
 If none were provided, will fetch from the current user name set in `GameJolt` singleton.
@@ -75,11 +114,13 @@ If none were provided, will fetch from the current user name set in `GameJolt` s
 Authenticates the user's information.
 This should be done before you make any calls for the user, to make sure the user's credentials (username and token) are valid.
 The user name and token must be set on `GameJolt` singleton for it to succeed.
+Emits `users_auth_completed`.
 
 ### Sessions
 #### [sessions_open](https://gamejolt.com/game-api/doc/sessions/open)() -> GameJolt
 Opens a game session for a particular user and allows you to tell Game Jolt that a user is playing your game.
 You must ping the session to keep it active and you must close it when you're done with it.
+Emits `sessions_open_completed`.
 
 **Notes:**
 - You can only have one open session for a user at a time. If you try to open a new session while one is running, the system will close out the current one before opening the new one.
@@ -90,6 +131,7 @@ Pings an open session to tell the system that it's still active.
 If the session hasn't been pinged within 120 seconds, the system will close the session and you will have to open another one.
 It's recommended that you ping about every 30 seconds or so to keep the system from clearing out your session.
 You can also let the system know whether the player is in an `"active"` or `"idle"` state within your game.
+Emits `sessions_ping_completed`.
 
 - `status: String` (optional) -> Sets the status of the session to either `"active"` or `"idle"`.
 
@@ -98,6 +140,7 @@ You can also let the system know whether the player is in an `"active"` or `"idl
 #### [sessions_check](https://gamejolt.com/game-api/doc/sessions/check)() -> GameJolt
 Checks to see if there is an open session for the user.
 Can be used to see if a particular user account is active in the game.
+Emits `sessions_check_completed`.
 
 **Notes:**
 - This endpoint returns `false` for the `"success"`` field when no open session exists. That behaviour is different from other endpoints which use this field to indicate an error state.
@@ -105,12 +148,14 @@ Can be used to see if a particular user account is active in the game.
 
 #### [sessions_close](https://gamejolt.com/game-api/doc/sessions/close)() -> GameJolt
 Closes the active session.
+Emits `sessions_close_completed`.
 
 **Note:** Requires user name and token to be set on `GameJolt` singleton.
 
 ### Scores
 #### [scores_fetch](https://gamejolt.com/game-api/doc/scores/fetch)(limit, table_id, guest, better_than, worse_than, this_user) -> GameJolt
 Returns a list of scores either for a user or globally for a game.
+Emits `scores_fetch_completed`.
 
 - `limit: String|int` (optional) -> The number of scores you'd like to return.
 - `table_id: String|int` (optional) -> The ID of the score table.
@@ -129,9 +174,11 @@ Returns a list of scores either for a user or globally for a game.
 
 #### [scores_tables](https://gamejolt.com/game-api/doc/scores/tables)() -> GameJolt
 Returns a list of high score tables for a game.
+Emits `scores_tables_completed`.
 
 #### [scores_add](https://gamejolt.com/game-api/doc/scores/add)(score, sort, table_id, guest, extra_data) -> GameJolt
 Adds a score for a user or guest.
+Emits `scores_add_completed`.
 
 - `score: String` -> This is a string value associated with the score. Example: `"500 Points"`.
 - `sort: String|int` -> This is a numerical sorting value associated with the score. All sorting will be based on this number. Example: `500`.
@@ -146,6 +193,7 @@ Adds a score for a user or guest.
 
 #### [scores_get_rank](https://gamejolt.com/game-api/doc/scores/get-rank)(sort, table_id) -> GameJolt
 Returns the rank of a particular score on a score table.
+Emits `scores_get_rank_completed`.
 
 - `sort: String|int` -> This is a numerical sorting value that is represented by a rank on the score table.
 - `table_id: String|int` (optional) -> The ID of the score table from which you want to get the rank.
@@ -155,20 +203,102 @@ Returns the rank of a particular score on a score table.
 - If the score is not represented by any rank on the score table, the request will return the rank that is closest to the requested score.
 
 ### Trophies
-TODO
+#### [trophies_fetch](https://gamejolt.com/game-api/doc/trophies/fetch)(achieved, trophy_ids) -> GameJolt
+Returns one trophy or multiple trophies, depending on the parameters passed in.
+Emits `trophies_fetch_completed`.
+
+- `sort: bool|null` -> Pass in `true` to return only the achieved trophies for a user. Pass in `false` to return only trophies the user hasn't achieved. Pass `null` to retrieve all trophies.
+- `trophy_ids: Array[String|int]` -> If you would like to return one or multiple trophies, pass trophy IDs here if you want to return a subset of all the trophies.
+
+**Notes:**
+- Passing `trophy_ids` will ignore the `achieved` parameter if it is passed.
+- Requires user name and token to be set on `GameJolt` singleton.
+
+#### [trophies_add_achieved](https://gamejolt.com/game-api/doc/trophies/add-achieved)(trophy_id) -> GameJolt
+Sets a trophy as achieved for a particular user.
+Emits `trophies_add_achieved_completed`.
+
+- `trophy_id: String|int` -> The ID of the trophy to add for the user.
+
+**Note:** Requires user name and token to be set on `GameJolt` singleton.
+
+#### [trophies_remove_achieved](https://gamejolt.com/game-api/doc/trophies/remove-achieved)(trophy_id) -> GameJolt
+Remove a previously achieved trophy for a particular user.
+Emits `trophies_remove_achieved_completed`.
+
+- `trophy_id: String|int` -> The ID of the trophy to remove from the user.
+
+**Note:** Requires user name and token to be set on `GameJolt` singleton.
 
 ### Data Storage
-TODO
+#### [data_store_set](https://gamejolt.com/game-api/doc/data-store/set)(key, data, global_data) -> GameJolt
+Sets data in the data store.
+Emits `data_store_set_completed`.
+
+- `key: String` -> The key of the data item you'd like to set.
+- `data: String|Array|Dictionary` -> The data you'd like to set.
+- `global_data: bool` -> If set to `true`, ignores user name and token set in `GameJolt` and processes global data instead of user data.
+
+**Notes:**
+- You can create new data store items by passing in a key that doesn't yet exist in the data store.
+- If `global_data` is `false`, requires user name and token to be set on `GameJolt` singleton.
+
+#### [data_store_update](https://gamejolt.com/game-api/doc/data-store/update)(key, operation, value, global_data) -> GameJolt
+Updates data in the data store.
+Emits `data_store_update_completed`.
+
+- `key: String` -> The key of the data item you'd like to update.
+- `operation: String` -> The operation you'd like to perform.
+- `value: String|int` -> The value you'd like to apply to the data store item.
+- `global_data: bool` -> If set to `true`, ignores user name and token set in `GameJolt` and processes global data instead of user data.
+
+**Notes:**
+- Valid values for `operation`: `"add"`, `"subtract"`, `"multiply"`, `"divide"`, `"append"` and `"prepend"`.
+- If `global_data` is `false`, requires user name and token to be set on `GameJolt` singleton.
+
+#### [data_store_remove](https://gamejolt.com/game-api/doc/data-store/remove)(key, global_data) -> GameJolt
+Removes data from the data store.
+Emits `data_store_remove_completed`.
+
+- `key: String` -> The key of the data item you'd like to remove.
+- `global_data: bool` -> If set to `true`, ignores user name and token set in `GameJolt` and processes global data instead of user data.
+
+**Notes:**
+- If `global_data` is `false`, requires user name and token to be set on `GameJolt` singleton.
+
+#### [data_store_fetch](https://gamejolt.com/game-api/doc/data-store/fetch)(key, global_data) -> GameJolt
+Returns data from the data store.
+Emits `data_store_fetch_completed`.
+
+- `key: String` -> The key of the data item you'd like to fetch.
+- `global_data: bool` -> If set to `true`, ignores user name and token set in `GameJolt` and processes global data instead of user data.
+
+**Notes:**
+- If `global_data` is `false`, requires user name and token to be set on `GameJolt` singleton.
+
+#### [data_store_get_keys](https://gamejolt.com/game-api/doc/data-store/get-keys)(pattern, global_data) -> GameJolt
+Returns either all the keys in the game's global data store, or all the keys in a user's data store.
+Emits `data_store_get_keys_completed`.
+
+- `pattern: String` -> The pattern to apply to the key names in the data store.
+- `global_data: bool` -> If set to `true`, ignores user name and token set in `GameJolt` and processes global data instead of user data.
+
+**Notes:**
+- If you apply a pattern to the request, only keys with applicable key names will be returned. The placeholder character for patterns is `"*"`.
+- This request will return a list of the `"key"` values. The `"key"` return value can appear more than once.
+- If `global_data` is `false`, requires user name and token to be set on `GameJolt` singleton.
 
 ### Friends
 #### [friends](https://gamejolt.com/game-api/doc/friends/fetch)() -> GameJolt
 Returns the list of a user's friends.
+Emits `friends_completed`.
 
 **Note:** Requires user name and token to be set on `GameJolt` singleton.
 
 ### Time
 #### [time](https://gamejolt.com/game-api/doc/time/fetch)() -> GameJolt
 Returns the time of the Game Jolt server.
+Emits `time_completed`.
 
 ### Batch Calls
 A batch request is a collection of sub-requests that enables developers to send multiple API calls with one HTTP request.
@@ -192,7 +322,8 @@ var result: Dictionary = yield(GameJolt.batch(), "batch_completed")
 ```
 
 #### [batch](https://gamejolt.com/game-api/doc/batch)(parallel, break_on_error) -> GameJolt
-Perform the batch request after gathering requests with `batch_begin` and `batch end`.
+Perform the batch request after gathering requests with `batch_begin` and `batch_end`.
+Emits `batch_completed`.
 
 - `parallel: bool` (optional) -> By default, each sub-request is processed on the servers sequentially. If this is set to `true`, then all sub-requests are processed at the same time, without waiting for the previous sub-request to finish before the next one is started.
 - `break_on_error: bool` (optional) -> If this is set to `true`, one sub-request failure will cause the entire batch to stop processing subsequent sub-requests and return a value of `false` for success.
