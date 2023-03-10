@@ -2,6 +2,8 @@
   <img width="75%" alt="Game Jolt API for Godot" src="addons/gamejolt/example/screenshot.jpg">
 </p>
 
-# Game Jolt API for Godot 3.5 (WIP)
+# Game Jolt API for Godot 3.5
 
-Includes all [Game Jolt API](https://gamejolt.com/game-api/doc)'s endpoints, including the batch request.
+Wrapper for the Game Jolt API running through HTTP requests. It contains all Game Jolt API endpoints and aims to simplify its use where it's possible.
+
+## WIP!!!
