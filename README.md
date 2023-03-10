@@ -24,11 +24,15 @@ General methods to configure `GameJolt` singleton locally.
 #### set_user_name(value)
 Set the user name for auth and other user scope tasks.
 
+- `value: String` -> The user name.
+
 #### get_user_name() -> String
 Get current user name.
 
 #### set_user_token(value)
 Set the user token for auth and other user scope tasks.
+
+- `value: String` -> The user game token.
 
 #### get_user_token() -> String
 Get current user game token.
