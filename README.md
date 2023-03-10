@@ -169,14 +169,68 @@ Returns one trophy or multiple trophies, depending on the parameters passed in.
 Sets a trophy as achieved for a particular user.
 
 - `trophy_id: String|int` -> The ID of the trophy to add for the user.
+- 
+**Note:** Requires user name and token to be set on `GameJolt` singleton.
 
 #### [trophies_remove_achieved](https://gamejolt.com/game-api/doc/trophies/remove-achieved)(trophy_id) -> GameJolt
 Remove a previously achieved trophy for a particular user.
 
 - `trophy_id: String|int` -> The ID of the trophy to remove from the user.
+- 
+**Note:** Requires user name and token to be set on `GameJolt` singleton.
 
 ### Data Storage
-TODO
+#### [data_store_set](https://gamejolt.com/game-api/doc/data-store/set)(key, data, global_data) -> GameJolt
+Sets data in the data store.
+
+- `key: String` -> The key of the data item you'd like to set.
+- `data: String|Array|Dictionary` -> The data you'd like to set.
+- `global_data: bool` -> If set to `true`, ignores user name and token set in `GameJolt` and processes global data instead of user data.
+
+**Notes:**
+- You can create new data store items by passing in a key that doesn't yet exist in the data store.
+- If `global_data` is `false`, requires user name and token to be set on `GameJolt` singleton.
+
+#### [data_store_update](https://gamejolt.com/game-api/doc/data-store/update)(key, operation, value, global_data) -> GameJolt
+Updates data in the data store.
+
+- `key: String` -> The key of the data item you'd like to update.
+- `operation: String` -> The operation you'd like to perform.
+- `value: String|int` -> The value you'd like to apply to the data store item.
+- `global_data: bool` -> If set to `true`, ignores user name and token set in `GameJolt` and processes global data instead of user data.
+
+**Notes:**
+- Valid values for `operation`: `"add"`, `"subtract"`, `"multiply"`, `"divide"`, `"append"` and `"prepend"`.
+- If `global_data` is `false`, requires user name and token to be set on `GameJolt` singleton.
+
+#### [data_store_remove](https://gamejolt.com/game-api/doc/data-store/remove)(key, global_data) -> GameJolt
+Removes data from the data store.
+
+- `key: String` -> The key of the data item you'd like to remove.
+- `global_data: bool` -> If set to `true`, ignores user name and token set in `GameJolt` and processes global data instead of user data.
+
+**Notes:**
+- If `global_data` is `false`, requires user name and token to be set on `GameJolt` singleton.
+
+#### [data_store_fetch](https://gamejolt.com/game-api/doc/data-store/fetch)(key, global_data) -> GameJolt
+Returns data from the data store.
+
+- `key: String` -> The key of the data item you'd like to fetch.
+- `global_data: bool` -> If set to `true`, ignores user name and token set in `GameJolt` and processes global data instead of user data.
+
+**Notes:**
+- If `global_data` is `false`, requires user name and token to be set on `GameJolt` singleton.
+
+#### [data_store_get_keys](https://gamejolt.com/game-api/doc/data-store/get-keys)(pattern, global_data) -> GameJolt
+Returns either all the keys in the game's global data store, or all the keys in a user's data store.
+
+- `pattern: String` -> The pattern to apply to the key names in the data store.
+- `global_data: bool` -> If set to `true`, ignores user name and token set in `GameJolt` and processes global data instead of user data.
+
+**Notes:**
+- If you apply a pattern to the request, only keys with applicable key names will be returned. The placeholder character for patterns is `"*"`.
+- This request will return a list of the `"key"` values. The `"key"` return value can appear more than once.
+- If `global_data` is `false`, requires user name and token to be set on `GameJolt` singleton.
 
 ### Friends
 #### [friends](https://gamejolt.com/game-api/doc/friends/fetch)() -> GameJolt
