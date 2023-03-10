@@ -21,20 +21,20 @@ You can use the methods below on the singleton `GameJolt` when the plugin is ena
 ### General
 General methods to configure `GameJolt` singleton locally.
 
-#### set_user_name(value: String) -> void
+#### set_user_name(value)
 Set the user name for auth and other user scope tasks.
 
 #### get_user_name() -> String
 Get current user name.
 
-#### set_user_token(value: String) -> void
+#### set_user_token(value)
 Set the user token for auth and other user scope tasks.
 
 #### get_user_token() -> String
 Get current user game token.
 
 ### Users
-#### users_fetch(user_name := "", user_ids := []) -> self
+#### users_fetch(user_name, user_ids) -> GameJolt
 Returns a user's data.
 
 - `user_name: String` (optional) -> The username of the user whose data you'd like to fetch.
@@ -43,13 +43,13 @@ Returns a user's data.
 **Note:** The parameters `user_name` and `user_ids` are mutually exclusive, you should use only one of them, or none.
 If none were provided, will fetch from the current user name set in `GameJolt` singleton.
 
-#### users_auth() -> self
+#### users_auth() -> GameJolt
 Authenticates the user's information.
 This should be done before you make any calls for the user, to make sure the user's credentials (username and token) are valid.
 The user name and token must be set on `GameJolt` singleton for it to succeed.
 
 ### Sessions
-#### sessions_open() -> self
+#### sessions_open() -> GameJolt
 Opens a game session for a particular user and allows you to tell Game Jolt that a user is playing your game.
 You must ping the session to keep it active and you must close it when you're done with it.
 
@@ -57,7 +57,7 @@ You must ping the session to keep it active and you must close it when you're do
 - You can only have one open session for a user at a time. If you try to open a new session while one is running, the system will close out the current one before opening the new one.
 - Requires user name and token to be set on `GameJolt` singleton.
 
-#### sessions_ping(status := "") -> self
+#### sessions_ping(status) -> GameJolt
 Pings an open session to tell the system that it's still active.
 If the session hasn't been pinged within 120 seconds, the system will close the session and you will have to open another one.
 It's recommended that you ping about every 30 seconds or so to keep the system from clearing out your session.
@@ -67,7 +67,7 @@ You can also let the system know whether the player is in an `"active"` or `"idl
 
 **Note:** Requires user name and token to be set on `GameJolt` singleton.
 
-#### sessions_check() -> self
+#### sessions_check() -> GameJolt
 Checks to see if there is an open session for the user.
 Can be used to see if a particular user account is active in the game.
 
@@ -75,13 +75,13 @@ Can be used to see if a particular user account is active in the game.
 - This endpoint returns `false` for the `"success"`` field when no open session exists. That behaviour is different from other endpoints which use this field to indicate an error state.
 - Requires user name and token to be set on `GameJolt` singleton.
 
-#### sessions_close() -> self
+#### sessions_close() -> GameJolt
 Closes the active session.
 
 **Note:** Requires user name and token to be set on `GameJolt` singleton.
 
 ### Scores
-#### scores_fetch(limit = null, table_id = null, guest := "", better_than = null, worse_than = null, this_user := false) -> self
+#### scores_fetch(limit, table_id, guest, better_than, worse_than, this_user) -> GameJolt
 Returns a list of scores either for a user or globally for a game.
 
 - `limit: String|int` (optional) -> The number of scores you'd like to return.
@@ -99,10 +99,10 @@ Returns a list of scores either for a user or globally for a game.
 - `guest` allows you to fetch scores by a specific guest name. Only pass either the `this_user` as `true` or the `guest` (or none), never both.
 - Scores are returned in the order of the score table's sorting direction. e.g. for descending tables the bigger scores are returned first.
 
-#### scores_tables() -> self
+#### scores_tables() -> GameJolt
 Returns a list of high score tables for a game.
 
-#### scores_add(score: String, sort, table_id = null, guest := "", extra_data = null) -> self
+#### scores_add(score, sort, table_id, guest, extra_data) -> GameJolt
 Adds a score for a user or guest.
 
 - `score: String` -> This is a string value associated with the score. Example: `"500 Points"`.
@@ -116,7 +116,7 @@ Adds a score for a user or guest.
 - The `extra_data` value is only retrievable through the API and your game's dashboard. It's never displayed publicly to users on the site. If there is other data associated with the score such as time played, coins collected, etc., you should definitely include it. It will be helpful in cases where you believe a gamer has illegitimately achieved a high score.
 - If `table_id` is left blank, the score will be submitted to the primary high score table.
 
-#### scores_get_rank(sort, table_id := "") -> self
+#### scores_get_rank(sort, table_id) -> GameJolt
 Returns the rank of a particular score on a score table.
 
 - `sort: String|int` -> This is a numerical sorting value that is represented by a rank on the score table.
@@ -133,13 +133,13 @@ TODO
 TODO
 
 ### Friends
-#### friends() -> self
+#### friends() -> GameJolt
 Returns the list of a user's friends.
 
 **Note:** Requires user name and token to be set on `GameJolt` singleton.
 
 ### Time
-#### time() -> self
+#### time() -> GameJolt
 Returns the time of the Game Jolt server.
 
 ### Batch Calls
@@ -163,7 +163,7 @@ GameJolt.batch_end()
 var result: Dictionary = yield(GameJolt.batch(), "batch_completed")
 ```
 
-#### batch(parallel := false, break_on_error := false) -> self
+#### batch(parallel, break_on_error) -> GameJolt
 Perform the batch request after gathering requests with `batch_begin` and `batch end`.
 
 - `parallel: bool` (optional) -> By default, each sub-request is processed on the servers sequentially. If this is set to `true`, then all sub-requests are processed at the same time, without waiting for the previous sub-request to finish before the next one is started.
@@ -173,10 +173,10 @@ Perform the batch request after gathering requests with `batch_begin` and `batch
 - The maximum amount of sub requests in one batch request is 50.
 - The `parallel` and `break_on_error` parameters are mutually exclusive and cannot be used in the same request.
 
-#### batch_begin() -> void
+#### batch_begin()
 Begins to gather requests for batch. Methods **will not** return responses after this call.
 Call `batch_end` to finish the batch request gathering process.
 
-#### batch_end() -> void
+#### batch_end()
 Stops gathering requests for batch. Methods **will** return responses again after this call.
 Must be used after `batch_begin`.
