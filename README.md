@@ -5,19 +5,18 @@
 
 Wrapper for the Game Jolt API running through HTTP requests. It contains all Game Jolt API endpoints and aims to simplify its use where it's possible. Compatible with **Godot 3.5.x**.
 
-It implements the following endpoints:
-
-- Users
-- Sessions
-- Scores
-- Trophies
-- Data Storage
-- Friends
-- Time
-- Batch Calls
-
-## API Reference
+## Documentation
 You can use the methods below on the singleton `GameJolt` when the plugin is enabled.
+
+- [General](#general)
+- [Users](#users)
+- [Sessions](#sessions)
+- [Scores](#scores)
+- [Trophies](#trophies)
+- [Data Storage](#data-storage)
+- [Friends](#friends)
+- [Time](#time)
+- [Batch Calls](#batch-calls)
 
 ### General
 General methods to configure `GameJolt` singleton locally.
@@ -126,3 +125,58 @@ Returns the rank of a particular score on a score table.
 **Notes:**
 - If `table_id` is left blank, the ranks from the primary high score table will be returned.
 - If the score is not represented by any rank on the score table, the request will return the rank that is closest to the requested score.
+
+### Trophies
+TODO
+
+### Data Storage
+TODO
+
+### Friends
+#### friends() -> self
+Returns the list of a user's friends.
+
+**Note:** Requires user name and token to be set on `GameJolt` singleton.
+
+### Time
+#### time() -> self
+Returns the time of the Game Jolt server.
+
+### Batch Calls
+A batch request is a collection of sub-requests that enables developers to send multiple API calls with one HTTP request.
+To use batch calls in your code, place your request calls between a `batch_begin` and `batch_end`. For example, use your methods in the following order:
+
+```gdscript
+# Begin to gather batch requests
+GameJolt.batch_begin()
+
+# Add the time request to the batch
+GameJolt.time()
+
+# Add the scores_tables request to the batch
+GameJolt.scores_tables()
+
+# Stop gathering batch requests
+GameJolt.batch_end()
+
+# Perform the batch call with the two requests above (time and score_tables)
+var result: Dictionary = yield(GameJolt.batch(), "batch_completed")
+```
+
+#### batch(parallel := false, break_on_error := false) -> self
+Perform the batch request after gathering requests with `batch_begin` and `batch end`.
+
+- `parallel: bool` (optional) -> By default, each sub-request is processed on the servers sequentially. If this is set to `true`, then all sub-requests are processed at the same time, without waiting for the previous sub-request to finish before the next one is started.
+- `break_on_error: bool` (optional) -> If this is set to `true`, one sub-request failure will cause the entire batch to stop processing subsequent sub-requests and return a value of `false` for success.
+
+**Notes:**
+- The maximum amount of sub requests in one batch request is 50.
+- The `parallel` and `break_on_error` parameters are mutually exclusive and cannot be used in the same request.
+
+#### batch_begin() -> void
+Begins to gather requests for batch. Methods **will not** return responses after this call.
+Call `batch_end` to finish the batch request gathering process.
+
+#### batch_end() -> void
+Stops gathering requests for batch. Methods **will** return responses again after this call.
+Must be used after `batch_begin`.
