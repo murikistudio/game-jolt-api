@@ -45,6 +45,8 @@ enabled=PoolStringArray( "res://addons/gamejolt/plugin.cfg" )
 
 default/game_id=""
 default/private_key=""
+debug/user_name=""
+debug/user_token=""
 
 [physics]
 

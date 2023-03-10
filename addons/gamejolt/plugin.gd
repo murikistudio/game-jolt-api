@@ -14,6 +14,16 @@ const DEFAULT_SETTINGS := [
 		"type": TYPE_STRING,
 		"value": "",
 	},
+	{
+		"name": "game_jolt/debug/user_name",
+		"type": TYPE_STRING,
+		"value": "",
+	},
+	{
+		"name": "game_jolt/debug/user_token",
+		"type": TYPE_STRING,
+		"value": "",
+	},
 ]
 
 

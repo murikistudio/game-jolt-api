@@ -69,6 +69,13 @@ onready var _game_id: String = ProjectSettings.get_setting("game_jolt/default/ga
 onready var _private_key: String = ProjectSettings.get_setting("game_jolt/default/private_key")
 
 
+# Built-in overrides
+func _ready() -> void:
+	if OS.is_debug_build():
+		set_user_name(ProjectSettings.get_setting("game_jolt/debug/user_name"))
+		set_user_token(ProjectSettings.get_setting("game_jolt/debug/user_token"))
+
+
 # Setters and getters
 # Set the user name for auth and other user scope tasks.
 func set_user_name(value: String) -> void:
