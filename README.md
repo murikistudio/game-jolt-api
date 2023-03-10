@@ -5,9 +5,10 @@
 
 Wrapper for the Game Jolt API running through HTTP requests. It contains all Game Jolt API endpoints and aims to simplify its use where it's possible. Compatible with **Godot 3.5.x**.
 
-## Documentation
-You can use the methods below on the singleton `GameJolt` when the plugin is enabled.
+For examples of use, see the [Documentation](#documentation) or the example scene in `addons/gamejolt/example`.
 
+## Documentation
+#### Index
 - [General](#general)
 - [Users](#users)
 - [Sessions](#sessions)
@@ -18,7 +19,16 @@ You can use the methods below on the singleton `GameJolt` when the plugin is ena
 - [Time](#time)
 - [Batch Calls](#batch-calls)
 
-### Handling Request Responses
+#### Initial Setup
+- Enable the plugin on `Project Settings > Plugins`
+- Set the game ID and private key to be able to perform API requests on `Project Settings > General > Game Jolt > Default` (`game_jolt/default/game_id` and `game_jolt/default/private_key`, respectively).
+- Optionally, you can set a default user name and token on `Project Settings > General > Game Jolt > Debug` (`game_jolt/debug/user_name` and `game_jolt/debug/user_token`, respectively).
+    - Those properties will only be used as defaults on editor and debug builds, allowing easier testing and prototyping.
+    - On release builds you must set the user name and token manually. See [General](#general) methods.
+
+After this setup you can perform the API requests by using the methods below on the singleton `GameJolt` on your code.
+
+#### Handling Request Responses
 Each method emits a signal after a request is completed, be it successful or not.
 You can connect specific signals to capture responses on method callbacks:
 
