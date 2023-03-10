@@ -67,7 +67,7 @@ func add_parameter_controls() -> void:
 			var line_edit := LineEdit.new()
 			label = Label.new()
 			control = line_edit
-			line_edit.placeholder_text = key
+			line_edit.placeholder_text = normalized_text
 			line_edit.text = str(value)
 			line_edit.connect("text_changed", self, "_on_LineEdit_text_changed", [key])
 
