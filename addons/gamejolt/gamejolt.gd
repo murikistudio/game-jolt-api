@@ -27,35 +27,33 @@ signal batch_completed(response)
 
 
 # Constants
-const DEBUG := true
-const MESSAGE_ERROR_DATA_REQUIRED := "Value is required: "
-const MESSAGE_ERROR_DATA_COLLISION := "Values cannot be used together: "
-const REQUEST_ERROR_AWAIT_INTERVAL := 0.1
-const RESPONSE_FAILED := {"success": false}
-const API_URL := "https://api.gamejolt.com/api/game/v1_2"
-const HEADERS := ["Access-Control-Allow-Origin: *"]
+const BASE_URL := "https://api.gamejolt.com/api/game/v1_2"
+const HEADERS := [
+	"Access-Control-Allow-Origin: *",
+	"Access-Control-Allow-Methods: GET",
+]
 const OPERATIONS := {
-	"users/fetch": API_URL + "/users/" + "?",
-	"users/auth": API_URL + "/users/auth/" + "?",
-	"sessions/open": API_URL + "/sessions/open/" + "?",
-	"sessions/ping": API_URL + "/sessions/ping/" + "?",
-	"sessions/check": API_URL + "/sessions/check/" + "?",
-	"sessions/close": API_URL + "/sessions/close/" + "?",
-	"scores/fetch": API_URL + "/scores/" + "?",
-	"scores/tables": API_URL + "/scores/tables/" + "?",
-	"scores/add": API_URL + "/scores/add/" + "?",
-	"scores/get-rank": API_URL + "/scores/get-rank/" + "?",
-	"trophies/fetch": API_URL + "/trophies/" + "?",
-	"trophies/add-achieved": API_URL + "/trophies/add-achieved/" + "?",
-	"trophies/remove-achieved": API_URL + "/trophies/remove-achieved/" + "?",
-	"data-store/set": API_URL + "/data-store/set/" + "?",
-	"data-store/update": API_URL + "/data-store/update/" + "?",
-	"data-store/remove": API_URL + "/data-store/remove/" + "?",
-	"data-store/fetch": API_URL + "/data-store/" + "?",
-	"data-store/get-keys": API_URL + "/data-store/get-keys/" + "?",
-	"friends": API_URL + "/friends/" + "?",
-	"time": API_URL + "/time/" + "?",
-	"batch": API_URL + "/batch/" + "?",
+	"users/fetch": BASE_URL + "/users/" + "?",
+	"users/auth": BASE_URL + "/users/auth/" + "?",
+	"sessions/open": BASE_URL + "/sessions/open/" + "?",
+	"sessions/ping": BASE_URL + "/sessions/ping/" + "?",
+	"sessions/check": BASE_URL + "/sessions/check/" + "?",
+	"sessions/close": BASE_URL + "/sessions/close/" + "?",
+	"scores/fetch": BASE_URL + "/scores/" + "?",
+	"scores/tables": BASE_URL + "/scores/tables/" + "?",
+	"scores/add": BASE_URL + "/scores/add/" + "?",
+	"scores/get-rank": BASE_URL + "/scores/get-rank/" + "?",
+	"trophies/fetch": BASE_URL + "/trophies/" + "?",
+	"trophies/add-achieved": BASE_URL + "/trophies/add-achieved/" + "?",
+	"trophies/remove-achieved": BASE_URL + "/trophies/remove-achieved/" + "?",
+	"data-store/set": BASE_URL + "/data-store/set/" + "?",
+	"data-store/update": BASE_URL + "/data-store/update/" + "?",
+	"data-store/remove": BASE_URL + "/data-store/remove/" + "?",
+	"data-store/fetch": BASE_URL + "/data-store/" + "?",
+	"data-store/get-keys": BASE_URL + "/data-store/get-keys/" + "?",
+	"friends": BASE_URL + "/friends/" + "?",
+	"time": BASE_URL + "/time/" + "?",
+	"batch": BASE_URL + "/batch/" + "?",
 }
 
 
@@ -109,7 +107,7 @@ func users_fetch(user_name := "", user_ids := []) -> _GameJolt:
 	if user_name and user_ids.size():
 		return _dispatch_local_error_response(
 			"users/fetch",
-			MESSAGE_ERROR_DATA_COLLISION + "user_name, user_ids"
+			"Values cannot be used together: user_name, user_ids"
 		)
 
 	if user_name:
@@ -417,7 +415,7 @@ func batch(parallel := false, break_on_error := false) -> _GameJolt:
 
 	for i in _batch_requests.size():
 		var request: String = _batch_requests[i]
-		request = request.replace(API_URL, "")
+		request = request.replace(BASE_URL, "")
 		request = request.split("&signature=")[0]
 		request += "&signature=" + (request + _private_key).md5_text()
 		_batch_requests[i] = request
@@ -486,10 +484,12 @@ func _create_http_request() -> HTTPRequest:
 
 
 # Await a fraction of a second before emiting an local error response to the user.
-func _dispatch_local_error_response(operation: String, message: String) -> _GameJolt:
-	get_tree().create_timer(REQUEST_ERROR_AWAIT_INTERVAL).connect(
-		"timeout", self, "_on_TimerFailed_timeout",
-		[operation, {"success": false, "message": message}]
+func _dispatch_local_error_response(operation: String, message: String, extra_data := {}) -> _GameJolt:
+	var data := {"success": "false", "message": message}
+	data.merge(extra_data, true)
+
+	get_tree().create_timer(0.1).connect(
+		"timeout", self, "_on_TimerFailed_timeout", [operation, data]
 	)
 	return self
 
@@ -520,7 +520,7 @@ func _validate_required_data(data: Dictionary) -> String:
 		var value = data[key]
 
 		if typeof(value) == TYPE_NIL or typeof(value) == TYPE_STRING and not value:
-			return MESSAGE_ERROR_DATA_REQUIRED + str(key)
+			return "Value is required: " + str(key)
 
 		if typeof(value) == TYPE_BOOL:
 			data[key] = str(value).to_lower()
@@ -590,14 +590,18 @@ func _on_HTTPRequest_request_completed(
 		if parsed_body and parsed_body["response"]:
 			parsed_body = parsed_body["response"]
 		else:
-			parsed_body = RESPONSE_FAILED
+			parsed_body = {"success": "false"}
 
 		emit_signal(signal_prefix + "_completed", parsed_body)
 
 		if _debug: prints(JSON.print(parsed_body))
 		return
 
-	emit_signal(signal_prefix + "_completed", RESPONSE_FAILED)
+	_dispatch_local_error_response(
+		operation,
+		"Could not complete request: " + operation,
+		{"result_code": result}
+	)
 
 
 # Executed when a local error happens and the script must wait to respond.
