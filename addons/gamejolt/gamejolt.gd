@@ -1,8 +1,12 @@
 extends Node
 class_name _GameJolt
+# Game Jolt API singleton.
 
 
 # Signals
+signal user_name_changed
+signal user_token_changed
+signal user_authenticated_changed
 signal users_fetch_completed(response)
 signal users_auth_completed(response)
 signal sessions_open_completed(response)
@@ -62,6 +66,7 @@ var _user_name := "" setget set_user_name, get_user_name
 var _user_token := "" setget set_user_token, get_user_token
 var _submit_requests := true
 var _batch_requests := []
+var _user_authenticated := false setget set_user_authenticated, is_user_authenticated
 
 onready var _debug: bool = ProjectSettings.get_setting("game_jolt/config/debug/enabled")
 onready var _game_id: String = ProjectSettings.get_setting("game_jolt/config/global/game_id")
@@ -78,7 +83,11 @@ func _ready() -> void:
 # Setters and getters
 # Set the user name for auth and other user scope tasks.
 func set_user_name(value: String) -> void:
+	if _user_name == value:
+		return
 	_user_name = value
+	set_user_authenticated(false)
+	emit_signal("user_name_changed")
 
 
 # Get current user name.
@@ -88,12 +97,29 @@ func get_user_name() -> String:
 
 # Set the user token for auth and other user scope tasks.
 func set_user_token(value: String) -> void:
+	if _user_token == value:
+		return
 	_user_token = value
+	set_user_authenticated(false)
+	emit_signal("user_token_changed")
 
 
 # Get current user game token.
 func get_user_token() -> String:
 	return _user_token
+
+
+# Set the user auth status.
+func set_user_authenticated(value: bool) -> void:
+	if value == _user_authenticated:
+		return
+	_user_authenticated = value
+	emit_signal("user_authenticated_changed")
+
+
+# Get current user auth status.
+func is_user_authenticated() -> bool:
+	return _user_authenticated
 
 
 # Public methods
@@ -591,6 +617,9 @@ func _on_HTTPRequest_request_completed(
 			parsed_body = parsed_body["response"]
 		else:
 			parsed_body = {"success": "false"}
+
+		if operation == "users/auth":
+			set_user_authenticated(parsed_body.get("success", "false") == "true")
 
 		emit_signal(signal_prefix + "_completed", parsed_body)
 
