@@ -61,11 +61,11 @@ Button/styles/hover = SubResource( 6 )
 Button/styles/normal = SubResource( 2 )
 Button/styles/pressed = SubResource( 1 )
 
-[sub_resource type="Gradient" id=4]
+[sub_resource type="Gradient" id=10]
 colors = PoolColorArray( 0.0915766, 0.195312, 0.0205994, 1, 0.455641, 0.59375, 0.422119, 1 )
 
 [sub_resource type="GradientTexture2D" id=5]
-gradient = SubResource( 4 )
+gradient = SubResource( 10 )
 fill_to = Vector2( 0, 1 )
 
 [sub_resource type="DynamicFont" id=8]

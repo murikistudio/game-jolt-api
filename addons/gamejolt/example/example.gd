@@ -15,21 +15,22 @@ onready var _input_data := {
 	"private_key": GameJolt._private_key,
 	"user_name": GameJolt.get_user_name(),
 	"user_token": GameJolt.get_user_token(),
+	"users_fetch_user_name": "",
 	"users_fetch_user_ids": [],
 	"sessions_ping_status": "active", # "active" or "idle"
-	"batch_parallel": false,
-	"batch_break_on_error": false,
-	"trophies_fetch_achieved": null,
-	"trophies_fetch_trophy_ids": [],
-	"trophies_trophy_id": "188176",
 	"scores_table_id": "714294",
 	"scores_guest_name": "",
 	"scores_fetch_this_user": false,
+	"trophies_fetch_achieved": null,
+	"trophies_fetch_trophy_ids": [],
+	"trophies_trophy_id": "188176",
 	"data_store_global_data": true,
 	"data_store_key": "data_store_key",
 	"data_store_value": "50",
 	"data_store_get_keys_pattern": "data_*",
 	"data_store_update_operation": "add",
+	"batch_parallel": false,
+	"batch_break_on_error": false,
 }
 
 
@@ -148,8 +149,8 @@ func _on_ButtonUsersFetch_pressed() -> void:
 	_text_edit_output.text = WAIT_TEXT
 	var result: Dictionary = yield(
 		GameJolt.users_fetch(
-			_input_data.get("user_name"),
-			_input_data.get("users_fetch_user_ids")
+			_input_data.get("users_fetch_user_name"),
+			JSON.parse(JSON.print(_input_data.get("users_fetch_user_ids"))).result
 		),
 		"users_fetch_completed"
 	)
