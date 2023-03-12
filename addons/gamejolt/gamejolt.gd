@@ -505,7 +505,7 @@ func _submit(operation: String, data: Dictionary, optional_data := {}) -> _GameJ
 func _create_http_request() -> HTTPRequest:
 	var _http_request := HTTPRequest.new()
 	add_child(_http_request)
-	_http_request.use_threads = true
+	_http_request.use_threads = OS.get_name() != "HTML5"
 	return _http_request
 
 
