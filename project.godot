@@ -43,10 +43,11 @@ enabled=PoolStringArray( "res://addons/gamejolt/plugin.cfg" )
 
 [game_jolt]
 
-default/game_id=""
-default/private_key=""
-debug/user_name=""
-debug/user_token=""
+config/global/game_id=""
+config/global/private_key=""
+config/debug/enabled=false
+config/debug/user_name=""
+config/debug/user_token=""
 
 [physics]
 

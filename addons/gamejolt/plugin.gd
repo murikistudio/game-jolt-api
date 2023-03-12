@@ -5,22 +5,27 @@ const DEBUG := true
 
 const DEFAULT_SETTINGS := [
 	{
-		"name": "game_jolt/default/game_id",
+		"name": "game_jolt/config/global/game_id",
 		"type": TYPE_STRING,
 		"value": "",
 	},
 	{
-		"name": "game_jolt/default/private_key",
+		"name": "game_jolt/config/global/private_key",
 		"type": TYPE_STRING,
 		"value": "",
 	},
 	{
-		"name": "game_jolt/debug/user_name",
+		"name": "game_jolt/config/debug/enabled",
+		"type": TYPE_BOOL,
+		"value": false,
+	},
+	{
+		"name": "game_jolt/config/debug/user_name",
 		"type": TYPE_STRING,
 		"value": "",
 	},
 	{
-		"name": "game_jolt/debug/user_token",
+		"name": "game_jolt/config/debug/user_token",
 		"type": TYPE_STRING,
 		"value": "",
 	},

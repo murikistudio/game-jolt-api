@@ -65,15 +65,16 @@ var _user_token := "" setget set_user_token, get_user_token
 var _submit_requests := true
 var _batch_requests := []
 
-onready var _game_id: String = ProjectSettings.get_setting("game_jolt/default/game_id")
-onready var _private_key: String = ProjectSettings.get_setting("game_jolt/default/private_key")
+onready var _debug: bool = ProjectSettings.get_setting("game_jolt/config/debug/enabled")
+onready var _game_id: String = ProjectSettings.get_setting("game_jolt/config/global/game_id")
+onready var _private_key: String = ProjectSettings.get_setting("game_jolt/config/global/private_key")
 
 
 # Built-in overrides
 func _ready() -> void:
-	if OS.is_debug_build():
-		set_user_name(ProjectSettings.get_setting("game_jolt/debug/user_name"))
-		set_user_token(ProjectSettings.get_setting("game_jolt/debug/user_token"))
+	if _debug and OS.is_debug_build():
+		set_user_name(ProjectSettings.get_setting("game_jolt/config/debug/user_name"))
+		set_user_token(ProjectSettings.get_setting("game_jolt/config/debug/user_token"))
 
 
 # Setters and getters
@@ -456,7 +457,7 @@ func _submit(operation: String, data: Dictionary, optional_data := {}) -> _GameJ
 		data.merge(_validate_optional_data(optional_data))
 
 	var final_url := _generate_url(OPERATIONS[operation], data)
-	if DEBUG: prints(final_url)
+	if _debug: prints(final_url)
 
 	if not _submit_requests:
 		_batch_requests.push_back(final_url)
@@ -592,7 +593,8 @@ func _on_HTTPRequest_request_completed(
 			parsed_body = RESPONSE_FAILED
 
 		emit_signal(signal_prefix + "_completed", parsed_body)
-		if DEBUG: prints(parsed_body)
+
+		if _debug: prints(JSON.print(parsed_body))
 		return
 
 	emit_signal(signal_prefix + "_completed", RESPONSE_FAILED)
@@ -600,5 +602,5 @@ func _on_HTTPRequest_request_completed(
 
 # Executed when a local error happens and the script must wait to respond.
 func _on_TimerFailed_timeout(operation: String, data: Dictionary) -> void:
-	if DEBUG: prints(data)
+	if _debug: prints(JSON.print(data))
 	emit_signal(operation.replace("/", "_") + "_completed", data)
