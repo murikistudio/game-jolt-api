@@ -1,0 +1,137 @@
+[gd_scene load_steps=11 format=2]
+
+[ext_resource path="res://addons/gamejolt/example/font.ttf" type="DynamicFontData" id=1]
+[ext_resource path="res://addons/gamejolt/example/logo.png" type="Texture" id=2]
+[ext_resource path="res://addons/gamejolt/example/example2.gd" type="Script" id=3]
+
+[sub_resource type="DynamicFont" id=7]
+size = 12
+outline_color = Color( 0, 0, 0, 1 )
+use_mipmaps = true
+use_filter = true
+font_data = ExtResource( 1 )
+
+[sub_resource type="StyleBoxFlat" id=6]
+bg_color = Color( 0.305882, 0.435294, 0.278431, 1 )
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color( 0.611765, 1, 0.454902, 1 )
+border_blend = true
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id=2]
+bg_color = Color( 0.176471, 0.254902, 0.164706, 1 )
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color( 0.611765, 1, 0.454902, 1 )
+border_blend = true
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id=1]
+bg_color = Color( 0.490196, 0.694118, 0.45098, 1 )
+border_color = Color( 0.611765, 1, 0.454902, 1 )
+border_blend = true
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="Theme" id=3]
+default_font = SubResource( 7 )
+Button/colors/font_color = Color( 1, 1, 1, 1 )
+Button/colors/font_color_disabled = Color( 1, 1, 1, 1 )
+Button/colors/font_color_focus = Color( 1, 1, 1, 1 )
+Button/colors/font_color_hover = Color( 1, 1, 1, 1 )
+Button/colors/font_color_pressed = Color( 1, 1, 1, 1 )
+Button/constants/hseparation = 0
+Button/fonts/font = SubResource( 7 )
+Button/styles/disabled = null
+Button/styles/focus = null
+Button/styles/hover = SubResource( 6 )
+Button/styles/normal = SubResource( 2 )
+Button/styles/pressed = SubResource( 1 )
+
+[sub_resource type="Gradient" id=4]
+colors = PoolColorArray( 0.0915766, 0.195312, 0.0205994, 1, 0.455641, 0.59375, 0.422119, 1 )
+
+[sub_resource type="GradientTexture2D" id=8]
+gradient = SubResource( 4 )
+fill_to = Vector2( 0, 1 )
+
+[node name="Example" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = SubResource( 3 )
+script = ExtResource( 3 )
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = SubResource( 8 )
+expand = true
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+custom_constants/margin_right = 8
+custom_constants/margin_top = 8
+custom_constants/margin_left = 8
+custom_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 952.0
+margin_bottom = 532.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/VBoxContainer"]
+margin_right = 944.0
+margin_bottom = 47.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.1
+texture = ExtResource( 2 )
+expand = true
+stretch_mode = 6
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+margin_top = 51.0
+margin_right = 944.0
+margin_bottom = 524.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+margin_right = 626.0
+margin_bottom = 473.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="ContainerInputs" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer"]
+margin_right = 626.0
+margin_bottom = 473.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="TextEditOutput" type="TextEdit" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+margin_left = 630.0
+margin_right = 944.0
+margin_bottom = 473.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
