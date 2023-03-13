@@ -204,7 +204,7 @@ onready var _endpoints := [
 		"params": [
 			{
 				"name": "achieved",
-				"value": false,
+				"value": "false",
 				"optional": true,
 			},
 			{
@@ -436,6 +436,7 @@ func _create_param_input_string(param: Dictionary) -> LineEdit:
 	var line_edit := LineEdit.new()
 	_set_control_size(line_edit)
 	line_edit.placeholder_text = _format_placeholder_text(param)
+	param["value"] = _get_literal(param["value"]) if typeof(param["value"]) == TYPE_STRING else param["value"]
 	line_edit.text = JSON.print(param["value"]) if typeof(param["value"]) in [TYPE_ARRAY, TYPE_DICTIONARY] else str(param["value"])
 	line_edit.connect("text_changed", self, "_on_LineEdit_text_changed", [param])
 	line_edit.secret = param.get("secret", false)
@@ -494,12 +495,18 @@ func _on_ButtonEndpoint_pressed(endpoint: Dictionary) -> void:
 	if not GameJolt.is_connected(signal_name, self, method_name):
 		GameJolt.connect(signal_name, self, method_name, [endpoint])
 
+	prints("Run endpoint:", endpoint["name"], JSON.print(param_values))
 	GameJolt.callv(endpoint["name"], param_values)
 
 
 # Executed when a request returns its response.
 func _on_request_completed(result: Dictionary, endpoint: Dictionary) -> void:
-	_text_edit_output.text = "Result of " + endpoint["name"] + ":\n\n" \
+	var param_values := []
+
+	for param in endpoint.get("params", []):
+		param_values.push_back(JSON.print(param["value"]))
+
+	_text_edit_output.text = "Result of " + endpoint["name"] + "(%s)" % (", ".join(param_values)) + ":\n\n" \
 		+ JSON.print(result, "    ")
 
 
@@ -521,6 +528,7 @@ func _on_LineEdit_text_changed(value: String, param: Dictionary) -> void:
 	value = value.strip_edges()
 	var old_value = param["value"]
 	var new_value = value
+	var allow_conversion := false
 
 	if typeof(old_value) in [TYPE_ARRAY, TYPE_DICTIONARY] and not validate_json(value):
 		new_value = parse_json(value)
@@ -528,7 +536,14 @@ func _on_LineEdit_text_changed(value: String, param: Dictionary) -> void:
 	elif typeof(old_value) == TYPE_INT and value.is_valid_integer():
 		new_value = value.to_int()
 
-	param["value"] = new_value if typeof(new_value) == typeof(old_value) else old_value
+	elif str(value).to_lower() in ["true", "false", "null"]:
+		new_value = _get_literal(value)
+		allow_conversion = true
+
+	param["value"] = new_value \
+		if typeof(new_value) == typeof(old_value) or allow_conversion \
+		else old_value
+
 	_run_param_setter(param)
 
 
@@ -572,3 +587,11 @@ func _format_placeholder_text(param: Dictionary, type := false, _options := fals
 	return str(param["name"]) + ("?" if param.get("optional") else "") \
 		+ (": " + _typeof(param["value"]) if type else "") \
 		+ (" = " + " | ".join(options) if options.size() else "")
+
+
+# Get literal value from string, or return original value instead.
+func _get_literal(value: String):
+	if str(value).to_lower() in ["true", "false", "null"]:
+		value = str(value).to_lower()
+		return true if value == "true" else false if value == "false" else null
+	return value
