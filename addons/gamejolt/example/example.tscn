@@ -1,15 +1,15 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=11 format=2]
 
-[ext_resource path="res://addons/gamejolt/example/example.gd" type="Script" id=1]
+[ext_resource path="res://addons/gamejolt/example/font.ttf" type="DynamicFontData" id=1]
 [ext_resource path="res://addons/gamejolt/example/logo.png" type="Texture" id=2]
-[ext_resource path="res://addons/gamejolt/example/font.ttf" type="DynamicFontData" id=3]
+[ext_resource path="res://addons/gamejolt/example/example.gd" type="Script" id=3]
 
 [sub_resource type="DynamicFont" id=7]
 size = 12
 outline_color = Color( 0, 0, 0, 1 )
 use_mipmaps = true
 use_filter = true
-font_data = ExtResource( 3 )
+font_data = ExtResource( 1 )
 
 [sub_resource type="StyleBoxFlat" id=6]
 bg_color = Color( 0.305882, 0.435294, 0.278431, 1 )
@@ -61,28 +61,18 @@ Button/styles/hover = SubResource( 6 )
 Button/styles/normal = SubResource( 2 )
 Button/styles/pressed = SubResource( 1 )
 
-[sub_resource type="Gradient" id=10]
+[sub_resource type="Gradient" id=4]
 colors = PoolColorArray( 0.0915766, 0.195312, 0.0205994, 1, 0.455641, 0.59375, 0.422119, 1 )
 
-[sub_resource type="GradientTexture2D" id=5]
-gradient = SubResource( 10 )
+[sub_resource type="GradientTexture2D" id=8]
+gradient = SubResource( 4 )
 fill_to = Vector2( 0, 1 )
-
-[sub_resource type="DynamicFont" id=8]
-size = 11
-outline_color = Color( 0, 0, 0, 1 )
-use_mipmaps = true
-use_filter = true
-font_data = ExtResource( 3 )
-
-[sub_resource type="Theme" id=9]
-default_font = SubResource( 8 )
 
 [node name="Example" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme = SubResource( 3 )
-script = ExtResource( 1 )
+script = ExtResource( 3 )
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 layer = -1
@@ -90,7 +80,7 @@ layer = -1
 [node name="TextureRect" type="TextureRect" parent="CanvasLayer"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-texture = SubResource( 5 )
+texture = SubResource( 8 )
 expand = true
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
@@ -111,388 +101,37 @@ size_flags_vertical = 3
 
 [node name="TextureRect" type="TextureRect" parent="MarginContainer/VBoxContainer"]
 margin_right = 944.0
-margin_bottom = 46.0
+margin_bottom = 47.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-size_flags_stretch_ratio = 0.2
+size_flags_stretch_ratio = 0.1
 texture = ExtResource( 2 )
 expand = true
 stretch_mode = 6
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
-margin_top = 50.0
-margin_right = 944.0
-margin_bottom = 285.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme = SubResource( 9 )
-
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer"]
-margin_right = 185.0
-margin_bottom = 235.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="Label4" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
-margin_right = 185.0
-margin_bottom = 25.0
-size_flags_horizontal = 3
-size_flags_vertical = 7
-text = "Users"
-align = 1
-valign = 2
-
-[node name="ButtonUsersAuth" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
-margin_top = 29.0
-margin_right = 185.0
-margin_bottom = 55.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "users_auth"
-
-[node name="ButtonUsersFetch" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
-margin_top = 59.0
-margin_right = 185.0
-margin_bottom = 85.0
-hint_tooltip = "user_name: String, user_ids: Array[String|int]"
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "users_fetch(...)"
-
-[node name="Label5" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
-margin_top = 89.0
-margin_right = 185.0
-margin_bottom = 115.0
-size_flags_horizontal = 3
-size_flags_vertical = 7
-text = "Sessions"
-align = 1
-valign = 2
-
-[node name="ButtonSessionsOpen" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
-margin_top = 119.0
-margin_right = 185.0
-margin_bottom = 145.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "sessions_open"
-
-[node name="ButtonSessionsPing" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
-margin_top = 149.0
-margin_right = 185.0
-margin_bottom = 175.0
-hint_tooltip = "status: String = 'idle' | 'active'"
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "sessions_ping(...)"
-
-[node name="ButtonSessionsCheck" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
-margin_top = 179.0
-margin_right = 185.0
-margin_bottom = 205.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "sessions_check"
-
-[node name="ButtonSessionsClose" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
-margin_top = 209.0
-margin_right = 185.0
-margin_bottom = 235.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "sessions_close"
-
-[node name="VBoxContainer2" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer"]
-margin_left = 189.0
-margin_right = 375.0
-margin_bottom = 235.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="Label5" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
-margin_right = 186.0
-margin_bottom = 43.0
-size_flags_horizontal = 3
-size_flags_vertical = 7
-text = "Scores"
-align = 1
-valign = 2
-
-[node name="ButtonScoresFetch" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
-margin_top = 47.0
-margin_right = 186.0
-margin_bottom = 91.0
-hint_tooltip = "limit: String|int, table_id: String|int, guest: String, better_than: String|int, worse_than: String|int, this_user: bool"
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "scores_fetch(...)"
-
-[node name="ButtonScoresTables" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
-margin_top = 95.0
-margin_right = 186.0
-margin_bottom = 139.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "scores_tables"
-
-[node name="ButtonScoresAdd" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
-margin_top = 143.0
-margin_right = 186.0
-margin_bottom = 187.0
-hint_tooltip = "score: String, sort: String|int, table_id: String|int, guest: String, extra_data: String"
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "scores_add(...)"
-
-[node name="ButtonScoresGetRank" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
-margin_top = 191.0
-margin_right = 186.0
-margin_bottom = 235.0
-hint_tooltip = "sort: String|int, table_id: String|int"
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "scores_get_rank(...)"
-
-[node name="VBoxContainer4" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer"]
-margin_left = 379.0
-margin_right = 564.0
-margin_bottom = 235.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="Label5" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer4"]
-margin_right = 185.0
-margin_bottom = 55.0
-size_flags_horizontal = 3
-size_flags_vertical = 7
-text = "Trophies"
-align = 1
-valign = 2
-
-[node name="ButtonTrophiesFetch" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer4"]
-margin_top = 59.0
-margin_right = 185.0
-margin_bottom = 115.0
-hint_tooltip = "achieved: bool|null, trophy_ids: Array[String|int]"
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "trophies_fetch(...)"
-
-[node name="ButtonTrophiesAddAchieved" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer4"]
-margin_top = 119.0
-margin_right = 185.0
-margin_bottom = 175.0
-hint_tooltip = "trophy_id: String|int"
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "trophies_add_achieved(...)"
-
-[node name="ButtonTrophiesRemoveAchieved" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer4"]
-margin_top = 179.0
-margin_right = 185.0
-margin_bottom = 235.0
-hint_tooltip = "trophy_id: String|int"
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "trophies_remove_achieved(...)"
-
-[node name="VBoxContainer5" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer"]
-margin_left = 568.0
-margin_right = 754.0
-margin_bottom = 235.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="Label5" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer5"]
-margin_right = 186.0
-margin_bottom = 35.0
-size_flags_horizontal = 3
-size_flags_vertical = 7
-text = "Data Storage"
-align = 1
-valign = 2
-
-[node name="ButtonDataStoreFetch" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer5"]
-margin_top = 39.0
-margin_right = 186.0
-margin_bottom = 75.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "data_store_fetch(...)"
-
-[node name="ButtonDataStoreGetKeys" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer5"]
-margin_top = 79.0
-margin_right = 186.0
-margin_bottom = 115.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "data_store_get_keys(...)"
-
-[node name="ButtonDataStoreRemove" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer5"]
-margin_top = 119.0
-margin_right = 186.0
-margin_bottom = 155.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "data_store_remove(...)"
-
-[node name="ButtonDataStoreSet" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer5"]
-margin_top = 159.0
-margin_right = 186.0
-margin_bottom = 195.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "data_store_set(...)"
-
-[node name="ButtonDataStoreUpdate" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer5"]
-margin_top = 199.0
-margin_right = 186.0
-margin_bottom = 235.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "data_store_update(...)"
-
-[node name="VBoxContainer3" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer"]
-margin_left = 758.0
-margin_right = 944.0
-margin_bottom = 235.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="Label3" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3"]
-margin_right = 186.0
-margin_bottom = 35.0
-size_flags_horizontal = 3
-size_flags_vertical = 7
-text = "Friends"
-align = 1
-valign = 2
-
-[node name="ButtonFriends" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3"]
-margin_top = 39.0
-margin_right = 186.0
-margin_bottom = 75.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "friends"
-
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3"]
-margin_top = 79.0
-margin_right = 186.0
-margin_bottom = 115.0
-size_flags_horizontal = 3
-size_flags_vertical = 7
-text = "Time"
-align = 1
-valign = 2
-
-[node name="ButtonTime" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3"]
-margin_top = 119.0
-margin_right = 186.0
-margin_bottom = 155.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "time"
-
-[node name="Label6" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3"]
-margin_top = 159.0
-margin_right = 186.0
-margin_bottom = 195.0
-size_flags_horizontal = 3
-size_flags_vertical = 7
-text = "Batch Calls"
-align = 1
-valign = 2
-
-[node name="ButtonBatch" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3"]
-margin_top = 199.0
-margin_right = 186.0
-margin_bottom = 235.0
-hint_tooltip = "parallel: bool, break_on_error: bool"
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "batch(...)"
-
-[node name="VBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
-margin_top = 289.0
+margin_top = 51.0
 margin_right = 944.0
 margin_bottom = 524.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/VBoxContainer2"]
-margin_right = 470.0
-margin_bottom = 235.0
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+margin_right = 626.0
+margin_bottom = 473.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="ContainerInputs" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer"]
+margin_right = 626.0
+margin_bottom = 473.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/VBoxContainer2/VBoxContainer"]
-margin_right = 470.0
-margin_bottom = 38.0
-size_flags_horizontal = 3
-size_flags_vertical = 7
-size_flags_stretch_ratio = 0.2
-text = "Parameters"
-align = 1
-valign = 2
-
-[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/VBoxContainer2/VBoxContainer"]
-margin_top = 42.0
-margin_right = 470.0
-margin_bottom = 235.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="ContainerParameters" type="HFlowContainer" parent="MarginContainer/VBoxContainer/VBoxContainer2/VBoxContainer/ScrollContainer"]
-margin_right = 470.0
-margin_bottom = 193.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="VBoxContainer2" type="VBoxContainer" parent="MarginContainer/VBoxContainer/VBoxContainer2"]
-margin_left = 474.0
+[node name="TextEditOutput" type="TextEdit" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+margin_left = 630.0
 margin_right = 944.0
-margin_bottom = 235.0
+margin_bottom = 473.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-
-[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer/VBoxContainer2/VBoxContainer2"]
-margin_right = 470.0
-margin_bottom = 38.0
-size_flags_horizontal = 3
-size_flags_vertical = 7
-size_flags_stretch_ratio = 0.2
-text = "Output"
-align = 1
-valign = 2
-
-[node name="TextEditOutput" type="TextEdit" parent="MarginContainer/VBoxContainer/VBoxContainer2/VBoxContainer2"]
-margin_top = 42.0
-margin_right = 470.0
-margin_bottom = 235.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-readonly = true
-show_line_numbers = true
-
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/ButtonUsersAuth" to="." method="_on_ButtonUsersAuth_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/ButtonUsersFetch" to="." method="_on_ButtonUsersFetch_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/ButtonSessionsOpen" to="." method="_on_ButtonSessionsOpen_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/ButtonSessionsPing" to="." method="_on_ButtonSessionsPing_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/ButtonSessionsCheck" to="." method="_on_ButtonSessionsCheck_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/ButtonSessionsClose" to="." method="_on_ButtonSessionsClose_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/ButtonScoresFetch" to="." method="_on_ButtonScoresFetch_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/ButtonScoresTables" to="." method="_on_ButtonScoresTables_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/ButtonScoresAdd" to="." method="_on_ButtonScoresAdd_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/ButtonScoresGetRank" to="." method="_on_ButtonScoresGetRank_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer4/ButtonTrophiesFetch" to="." method="_on_ButtonTrophiesFetch_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer4/ButtonTrophiesAddAchieved" to="." method="_on_ButtonTrophiesAddAchieved_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer4/ButtonTrophiesRemoveAchieved" to="." method="_on_ButtonTrophiesRemoveAchieved_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer5/ButtonDataStoreFetch" to="." method="_on_ButtonDataStoreFetch_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer5/ButtonDataStoreGetKeys" to="." method="_on_ButtonDataStoreGetKeys_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer5/ButtonDataStoreRemove" to="." method="_on_ButtonDataStoreRemove_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer5/ButtonDataStoreSet" to="." method="_on_ButtonDataStoreSet_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer5/ButtonDataStoreUpdate" to="." method="_on_ButtonDataStoreUpdate_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/ButtonFriends" to="." method="_on_ButtonFriends_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/ButtonTime" to="." method="_on_ButtonTime_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer3/ButtonBatch" to="." method="_on_ButtonBatch_pressed"]

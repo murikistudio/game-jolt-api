@@ -1,338 +1,567 @@
 extends Control
 
 
-const INDENT := "    "
-const WAIT_TEXT := "Requesting..."
-const SECRET_FIELDS := ["private_key", "user_token"]
+# Constants
+const CONTROL_RECT_MIN_SIZE := Vector2(0, 32)
 
 
-onready var _line_edit_game_id: LineEdit = find_node("LineEditGameId")
-onready var _line_edit_private_key: LineEdit = find_node("LineEditPrivateKey")
+# Variables
 onready var _text_edit_output: TextEdit = find_node("TextEditOutput")
-onready var _container_parameters: Container = find_node("ContainerParameters")
-onready var _input_data := {
-	"game_id": GameJolt._game_id,
-	"private_key": GameJolt._private_key,
-	"user_name": GameJolt.get_user_name(),
-	"user_token": GameJolt.get_user_token(),
-	"users_fetch_user_name": "",
-	"users_fetch_user_ids": [],
-	"sessions_ping_status": "active", # "active" or "idle"
-	"scores_table_id": "",
-	"scores_guest_name": "",
-	"scores_fetch_this_user": false,
-	"trophies_fetch_achieved": null,
-	"trophies_fetch_trophy_ids": [],
-	"trophies_trophy_id": "",
-	"data_store_global_data": true,
-	"data_store_key": "data_store_key",
-	"data_store_value": "50",
-	"data_store_get_keys_pattern": "data_*",
-	"data_store_update_operation": "add",
-	"batch_parallel": false,
-	"batch_break_on_error": false,
-}
+onready var _container_inputs: Container = find_node("ContainerInputs")
+onready var _global := []
+onready var _endpoints := [
+	{
+		"name": "Global",
+		"section": true,
+	},
+	{
+		"name": "global",
+		"global": true,
+		"params": [
+			{
+				"name": "game_id",
+				"value": GameJolt._game_id,
+				"object": GameJolt,
+				"property": "_game_id",
+			},
+			{
+				"name": "private_key",
+				"value": GameJolt._private_key,
+				"object": GameJolt,
+				"property": "_private_key",
+			},
+			{
+				"name": "user_name",
+				"value": GameJolt.get_user_name(),
+				"object": GameJolt,
+				"property": "_user_name",
+			},
+			{
+				"name": "user_token",
+				"value": GameJolt.get_user_token(),
+				"object": GameJolt,
+				"property": "_user_token",
+			},
+		],
+	},
 
+	# Users
+	{
+		"name": "Users",
+		"section": true,
+	},
+	{
+		"name": "users_fetch",
+		"endpoint": true,
+		"params": [
+			{
+				"name": "user_name",
+				"value": "",
+				"optional": true,
+			},
+			{
+				"name": "user_ids",
+				"value": [],
+				"optional": true,
+			},
+		],
+	},
+	{
+		"name": "users_auth",
+		"endpoint": true,
+	},
 
+	# Sessions
+	{
+		"name": "Sessions",
+		"section": true,
+	},
+	{
+		"name": "sessions_open",
+		"endpoint": true,
+	},
+	{
+		"name": "sessions_ping",
+		"endpoint": true,
+		"params": [
+			{
+				"name": "status",
+				"value": "",
+				"optional": true,
+				"options": ["", "active", "idle"],
+			},
+		],
+	},
+	{
+		"name": "sessions_close",
+		"endpoint": true,
+	},
+
+	# Scores
+	{
+		"name": "Scores",
+		"section": true,
+	},
+	{
+		"name": "scores_fetch",
+		"endpoint": true,
+		"params": [
+			{
+				"name": "limit",
+				"value": "",
+				"optional": true,
+			},
+			{
+				"name": "table_id",
+				"value": "",
+				"optional": true,
+			},
+			{
+				"name": "guest",
+				"value": "",
+				"optional": true,
+			},
+			{
+				"name": "better_than",
+				"value": "",
+				"optional": true,
+			},
+			{
+				"name": "worse_than",
+				"value": "",
+				"optional": true,
+			},
+			{
+				"name": "this_user",
+				"value": true,
+				"optional": true,
+			},
+		],
+	},
+	{
+		"name": "scores_tables",
+		"endpoint": true,
+	},
+	{
+		"name": "scores_add",
+		"endpoint": true,
+		"params": [
+			{
+				"name": "score",
+				"value": "",
+			},
+			{
+				"name": "sort",
+				"value": "",
+			},
+			{
+				"name": "table_id",
+				"value": "",
+				"optional": true,
+			},
+			{
+				"name": "guest",
+				"value": "",
+				"optional": true,
+			},
+			{
+				"name": "extra_data",
+				"value": "",
+				"optional": true,
+			},
+		],
+	},
+	{
+		"name": "scores_get_rank",
+		"endpoint": true,
+		"params": [
+			{
+				"name": "sort",
+				"value": "",
+			},
+			{
+				"name": "table_id",
+				"value": "",
+				"optional": true,
+			},
+		],
+	},
+
+	# Trophies
+	{
+		"name": "Trophies",
+		"section": true,
+	},
+	{
+		"name": "trophies_fetch",
+		"endpoint": true,
+		"params": [
+			{
+				"name": "achieved",
+				"value": false,
+				"optional": true,
+			},
+			{
+				"name": "trophy_ids",
+				"value": [],
+				"optional": true,
+			},
+		],
+	},
+	{
+		"name": "trophies_add_achieved",
+		"endpoint": true,
+		"params": [
+			{
+				"name": "trophy_id",
+				"value": "",
+			},
+		],
+	},
+	{
+		"name": "trophies_remove_achieved",
+		"endpoint": true,
+		"params": [
+			{
+				"name": "trophy_id",
+				"value": "",
+			},
+		],
+	},
+
+	# Data Storage
+	{
+		"name": "Data Storage",
+		"section": true,
+	},
+	{
+		"name": "data_store_set",
+		"endpoint": true,
+		"params": [
+			{
+				"name": "key",
+				"value": "",
+			},
+			{
+				"name": "data",
+				"value": "",
+			},
+			{
+				"name": "global_data",
+				"value": false,
+				"optional": true,
+			},
+		],
+	},
+	{
+		"name": "data_store_update",
+		"endpoint": true,
+		"params": [
+			{
+				"name": "key",
+				"value": "",
+			},
+			{
+				"name": "operation",
+				"value": "",
+				"options": ["add", "subtract", "multiply", "divide", "append", "prepend"],
+			},
+			{
+				"name": "value",
+				"value": "",
+			},
+			{
+				"name": "global_data",
+				"value": false,
+				"optional": true,
+			},
+		],
+	},
+	{
+		"name": "data_store_remove",
+		"endpoint": true,
+		"params": [
+			{
+				"name": "key",
+				"value": "",
+			},
+			{
+				"name": "global_data",
+				"value": false,
+				"optional": true,
+			},
+		],
+	},
+	{
+		"name": "data_store_fetch",
+		"endpoint": true,
+		"params": [
+			{
+				"name": "key",
+				"value": "",
+			},
+			{
+				"name": "global_data",
+				"value": false,
+				"optional": true,
+			},
+		],
+	},
+	{
+		"name": "data_store_get_keys",
+		"endpoint": true,
+		"params": [
+			{
+				"name": "pattern",
+				"value": "",
+				"optional": true,
+			},
+			{
+				"name": "global_data",
+				"value": false,
+				"optional": true,
+			},
+		],
+	},
+
+	# Friends
+	{
+		"name": "Friends",
+		"section": true,
+	},
+	{
+		"name": "friends",
+		"endpoint": true,
+	},
+
+	# Time
+	{
+		"name": "Time",
+		"section": true,
+	},
+	{
+		"name": "time",
+		"endpoint": true,
+	},
+]
+
+# Built-in overrides
 func _ready() -> void:
-	add_parameter_controls()
-	update_parameters_data()
+	_add_endpoint_controls()
 
 
-func update_parameters_data() -> void:
-	GameJolt._game_id = _input_data.get("game_id", "")
-	GameJolt._private_key = _input_data.get("private_key", "")
-	GameJolt.set_user_name(_input_data.get("user_name", ""))
-	GameJolt.set_user_token(_input_data.get("user_token", ""))
+# Private methods
+func _add_endpoint_controls() -> void:
+	for _child in _container_inputs.get_children():
+		var child: Node = _child
+		child.queue_free()
+
+	for _endpoint in _endpoints:
+		var endpoint: Dictionary = _endpoint
+
+		if endpoint.get("section"):
+			var section := _create_section(endpoint)
+			_container_inputs.add_child(section)
+			continue
+
+		elif endpoint.get("global"):
+			_global = endpoint.get("params", [])
+
+		var container := _create_endpoint_container()
+		_container_inputs.add_child(container)
+
+		if endpoint.get("endpoint"):
+			var button := _create_endpoint_button(endpoint)
+			button.connect("pressed", self, "_on_ButtonEndpoint_pressed", [endpoint])
+			container.add_child(button)
+
+		for _param in endpoint.get("params", []):
+			var param: Dictionary = _param
+
+			var control := _create_param_input(param)
+			container.add_child(control)
 
 
-func set_text_edit_output(result: Dictionary) -> void:
-	_text_edit_output.text = JSON.print(result, INDENT)
+# Creates the container to hold the endpoint button and its input controls.
+func _create_endpoint_container() -> Container:
+	var container := HBoxContainer.new()
+	container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	container.rect_min_size = CONTROL_RECT_MIN_SIZE
+	return container
 
 
-func add_parameter_controls() -> void:
-	for key in _input_data.keys():
-		var value = _input_data[key]
-		var vbox_container := VBoxContainer.new()
-		var control: Control
-		var label: Label
-		var normalized_text := (key as String).replace("_", " ").capitalize()
+# Creates a button to call the endpoint.
+func _create_endpoint_button(endpoint: Dictionary) -> Button:
+	var button := Button.new()
+	_set_control_size(button, false, 2.0)
+	button.size_flags_stretch_ratio = 1.5
+	button.text = endpoint["name"] + "(%s)" % ("..." if endpoint.get("params", []).size() else "")
+	var param_hints := []
 
-		if typeof(value) == TYPE_BOOL:
-			var check_box := CheckBox.new()
-			control = check_box
-			check_box.text = " " + normalized_text
-			check_box.pressed = value
-			check_box.connect("toggled", self, "_on_CheckBox_toggled", [key])
+	for _param in endpoint.get("params", []):
+		var param: Dictionary = _param
+		var hint: String = _format_placeholder_text(param, true, true)
 
-		else:
-			var line_edit := LineEdit.new()
-			label = Label.new()
-			control = line_edit
-			line_edit.placeholder_text = normalized_text
-			line_edit.text = str(value)
-			line_edit.connect("text_changed", self, "_on_LineEdit_text_changed", [key])
+		param_hints.push_back(hint)
 
-			if key in SECRET_FIELDS:
-				line_edit.secret = true
+	button.hint_tooltip = endpoint["name"] + "(%s)" % ", ".join(param_hints)
+	return button
 
-		if label:
-			label.text = normalized_text
-			label.align = Label.ALIGN_CENTER
-			label.valign = Label.VALIGN_BOTTOM
-			label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			label.size_flags_vertical = Control.SIZE_EXPAND_FILL
-			vbox_container.add_child(label)
 
-		control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		control.size_flags_vertical = Control.SIZE_EXPAND_FILL
+# Creates an input control based on the evaluated parameter type.
+func _create_param_input(param: Dictionary) -> Control:
+	var control: Control
 
-		vbox_container.rect_min_size.x = 130
-		vbox_container.rect_min_size.y = 45
-		vbox_container.add_child(control)
-		_container_parameters.add_child(vbox_container)
+	if typeof(param["value"]) in [TYPE_BOOL]:
+		control = _create_param_input_bool(param)
+
+	elif typeof(param["value"]) in [TYPE_INT]:
+		control = _create_param_input_int(param)
+
+	else:
+		control = _create_param_input_string(param)
+
+	control.hint_tooltip = _format_placeholder_text(param, true, true)
+	return control
+
+
+# Creates a LineEdit input to handle strings and other types.
+func _create_param_input_string(param: Dictionary) -> LineEdit:
+	var line_edit := LineEdit.new()
+	_set_control_size(line_edit)
+	line_edit.placeholder_text = _format_placeholder_text(param)
+	line_edit.text = JSON.print(param["value"]) if typeof(param["value"]) in [TYPE_ARRAY, TYPE_DICTIONARY] else str(param["value"])
+	line_edit.connect("text_changed", self, "_on_LineEdit_text_changed", [param])
+	return line_edit
+
+
+# Creates a CheckBox input to handle boolean types.
+func _create_param_input_bool(param: Dictionary) -> CheckBox:
+	var check_box := CheckBox.new()
+	_set_control_size(check_box)
+	check_box.text = " " + _format_placeholder_text(param)
+	check_box.connect("toggled", self, "_on_CheckBox_toggled", [param])
+	return check_box
+
+
+# Creates a SpinBox input to handle integer types.
+func _create_param_input_int(param: Dictionary) -> SpinBox:
+	var spin_box := SpinBox.new()
+	_set_control_size(spin_box)
+	spin_box.prefix = _format_placeholder_text(param)
+	spin_box.connect("value_changed", self, "_on_SpinBox_value_changed", [param])
+	return spin_box
+
+
+# Creates a label to separate different sections of endpoints.
+func _create_section(endpoint: Dictionary) -> Label:
+	var label := Label.new()
+	label.text = endpoint["name"]
+	label.align = Label.ALIGN_CENTER
+	label.valign = Label.VALIGN_BOTTOM
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.rect_min_size = CONTROL_RECT_MIN_SIZE #* 0.75
+	return label
+
+
+# Sets indexed property of object after parameter is set.
+func _run_param_setter(param: Dictionary) -> void:
+	if not param.get("object") or not param.get("property"):
+		return
+
+	prints("Set", param["object"], ":", param["property"], "=", param["value"])
+	param["object"].set_indexed(param["property"], param["value"])
 
 
 # Event handlers
-func _on_CheckBox_toggled(pressed: bool, property: String) -> void:
-	_input_data[property] = pressed
-	update_parameters_data()
+# Executed when the endpoint button is pressed.
+func _on_ButtonEndpoint_pressed(endpoint: Dictionary) -> void:
+	_text_edit_output.text = "Requesting " + endpoint["name"] + "..."
+	var signal_name := GameJolt._operation_to_signal(endpoint["name"])
+	var method_name := "_on_request_completed"
+	var param_values := []
+
+	for param in endpoint.get("params", []):
+		param_values.push_back(param["value"])
+
+	if not GameJolt.is_connected(signal_name, self, method_name):
+		GameJolt.connect(signal_name, self, method_name, [endpoint])
+
+	GameJolt.callv(endpoint["name"], param_values)
 
 
-func _on_LineEdit_text_changed(new_text: String, property: String) -> void:
-	_input_data[property] = new_text
-	update_parameters_data()
+# Executed when a request returns its response.
+func _on_request_completed(result: Dictionary, endpoint: Dictionary) -> void:
+	_text_edit_output.text = "Result of " + endpoint["name"] + ":\n\n" \
+		+ JSON.print(result, "    ")
 
 
-# Time
-func _on_ButtonTime_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-	var result: Dictionary = yield(GameJolt.time(), "time_completed")
-	set_text_edit_output(result)
+# Executed when a numeric input changes its value.
+func _on_SpinBox_value_changed(_value: float, param: Dictionary) -> void:
+	var value := int(_value)
+	param["value"] = value
+	_run_param_setter(param)
 
 
-# Friends
-func _on_ButtonFriends_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-	var result: Dictionary = yield(GameJolt.friends(), "friends_completed")
-	set_text_edit_output(result)
+# Executed when a boolean input changes its value.
+func _on_CheckBox_toggled(value: bool, param: Dictionary) -> void:
+	param["value"] = value
+	_run_param_setter(param)
 
 
-# Batch
-func _on_ButtonBatch_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
+# Executed when a string input changes its value.
+func _on_LineEdit_text_changed(value: String, param: Dictionary) -> void:
+	value = value.strip_edges()
+	var old_value = param["value"]
+	var new_value = value
 
-	GameJolt.batch_begin()
-	GameJolt.time()
-	GameJolt.users_auth()
-	GameJolt.batch_end()
+	if typeof(old_value) in [TYPE_ARRAY, TYPE_DICTIONARY] and not validate_json(value):
+		new_value = parse_json(value)
 
-	var result: Dictionary = yield(
-		GameJolt.batch(
-			_input_data.get("batch_parallel", false),
-			_input_data.get("batch_break_on_error", false)
-		),
-		"batch_completed"
-	)
+	elif typeof(old_value) == TYPE_INT and value.is_valid_integer():
+		new_value = value.to_int()
 
-	set_text_edit_output(result)
+	param["value"] = new_value if typeof(new_value) == typeof(old_value) else old_value
+	_run_param_setter(param)
 
 
-# Users
-func _on_ButtonUsersAuth_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-	var result: Dictionary = yield(GameJolt.users_auth(), "users_auth_completed")
-	set_text_edit_output(result)
+# Show and hide output field.
+func _on_ButtonOutput_pressed() -> void:
+	_text_edit_output.visible = not _text_edit_output.visible
 
 
-func _on_ButtonUsersFetch_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-	var result: Dictionary = yield(
-		GameJolt.users_fetch(
-			_input_data.get("users_fetch_user_name"),
-			JSON.parse(JSON.print(_input_data.get("users_fetch_user_ids"))).result
-		),
-		"users_fetch_completed"
-	)
-	set_text_edit_output(result)
+# Helper methods
+# Returns string representation of type.
+func _typeof(value) -> String:
+	if typeof(value) == TYPE_STRING:
+		return "String"
+	if typeof(value) == TYPE_INT:
+		return "int"
+	if typeof(value) == TYPE_ARRAY:
+		return "Array"
+	if typeof(value) == TYPE_BOOL:
+		return "bool"
+	return "Variant"
 
 
-# Sessions
-func _on_ButtonSessionsOpen_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-	var result: Dictionary = yield(GameJolt.sessions_open(), "sessions_open_completed")
-	set_text_edit_output(result)
+# Expand and fill control horizontally and vertically.
+func _set_control_size(control: Control, expand := false, h_size := 1.0) -> void:
+	if expand:
+		control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		control.size_flags_vertical = Control.SIZE_EXPAND_FILL
+
+	control.rect_min_size = Vector2(150 * h_size, CONTROL_RECT_MIN_SIZE.y)
 
 
-func _on_ButtonSessionsPing_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-	var result: Dictionary = yield(
-		GameJolt.sessions_ping(_input_data.get("sessions_ping_status", "")),
-		"sessions_ping_completed"
-	)
-	set_text_edit_output(result)
+# Format param text based on its name, optional, type and valid options.
+func _format_placeholder_text(param: Dictionary, type := false, _options := false) -> String:
+	var options := []
 
+	if _options and param.get("options"):
+		for option in param["options"]:
+			option = "'%s'" % option if typeof(option) == TYPE_STRING else str(option)
+			options.push_back(option)
 
-func _on_ButtonSessionsCheck_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-	var result: Dictionary = yield(GameJolt.sessions_check(), "sessions_check_completed")
-	set_text_edit_output(result)
-
-
-func _on_ButtonSessionsClose_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-	var result: Dictionary = yield(GameJolt.sessions_close(), "sessions_close_completed")
-	set_text_edit_output(result)
-
-
-# Trophies
-func _on_ButtonTrophiesFetch_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-	var result: Dictionary = yield(
-		GameJolt.trophies_fetch(
-			_input_data.get("trophies_fetch_achieved", null),
-			_input_data.get("trophies_fetch_trophy_ids", [])
-		),
-		"trophies_fetch_completed"
-	)
-	set_text_edit_output(result)
-
-
-func _on_ButtonTrophiesAddAchieved_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-	var result: Dictionary = yield(
-		GameJolt.trophies_add_achieved(
-			_input_data.get("trophies_trophy_id")
-		),
-		"trophies_add_achieved_completed"
-	)
-	set_text_edit_output(result)
-
-
-func _on_ButtonTrophiesRemoveAchieved_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-	var result: Dictionary = yield(
-		GameJolt.trophies_remove_achieved(
-			_input_data.get("trophies_trophy_id")
-		),
-		"trophies_remove_achieved_completed"
-	)
-	set_text_edit_output(result)
-
-
-# Scores
-func _on_ButtonScoresFetch_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-	var result: Dictionary = yield(
-		GameJolt.scores_fetch(
-			10,
-			_input_data.get("scores_table_id", ""),
-			_input_data.get("scores_guest_name", ""),
-			0, 0, true
-		),
-		"scores_fetch_completed"
-	)
-	set_text_edit_output(result)
-
-
-func _on_ButtonScoresTables_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-	randomize()
-	var score := int(rand_range(100, 10000))
-	var result: Dictionary = yield(
-		GameJolt.scores_tables(),
-		"scores_tables_completed"
-	)
-	set_text_edit_output(result)
-
-
-func _on_ButtonScoresAdd_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-	randomize()
-	var score := int(rand_range(100, 10000))
-	var result: Dictionary = yield(
-		GameJolt.scores_add(
-			str(score) + " points",
-			score,
-			_input_data.get("scores_table_id", ""),
-			_input_data.get("scores_guest_name", ""),
-			'{"key": "value"}'
-		),
-		"scores_add_completed"
-	)
-	set_text_edit_output(result)
-
-
-func _on_ButtonScoresGetRank_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-	var result: Dictionary = yield(
-		GameJolt.scores_get_rank(
-			1, _input_data.get("scores_table_id", "")
-		),
-		"scores_get_rank_completed"
-	)
-	set_text_edit_output(result)
-
-
-# Data Storage
-func _on_ButtonDataStoreFetch_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-	var result: Dictionary = yield(
-		GameJolt.data_store_fetch(
-			_input_data.get("data_store_key", ""),
-			_input_data.get("data_store_global_data", true)
-		),
-		"data_store_fetch_completed"
-	)
-	set_text_edit_output(result)
-
-
-func _on_ButtonDataStoreGetKeys_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-	var result: Dictionary = yield(
-		GameJolt.data_store_get_keys(
-			_input_data.get("data_store_get_keys_pattern", ""),
-			_input_data.get("data_store_global_data", true)
-		),
-		"data_store_get_keys_completed"
-	)
-	set_text_edit_output(result)
-
-
-func _on_ButtonDataStoreRemove_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-	var result: Dictionary = yield(
-		GameJolt.data_store_remove(
-			_input_data.get("data_store_key", ""),
-			_input_data.get("data_store_global_data", true)
-		),
-		"data_store_remove_completed"
-	)
-	set_text_edit_output(result)
-
-
-func _on_ButtonDataStoreSet_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-	var result: Dictionary = yield(
-		GameJolt.data_store_set(
-			_input_data.get("data_store_key", ""),
-			_input_data.get("data_store_value", ""),
-			_input_data.get("data_store_global_data", true)
-		),
-		"data_store_set_completed"
-	)
-	set_text_edit_output(result)
-
-
-func _on_ButtonDataStoreUpdate_pressed() -> void:
-	_text_edit_output.text = WAIT_TEXT
-	var result: Dictionary = yield(
-		GameJolt.data_store_update(
-			_input_data.get("data_store_key", ""),
-			_input_data.get("data_store_update_operation", ""),
-			_input_data.get("data_store_value", ""),
-			_input_data.get("data_store_global_data", true)
-		),
-		"data_store_update_completed"
-	)
-	set_text_edit_output(result)
+	return str(param["name"]) + ("?" if param.get("optional") else "") \
+		+ (": " + _typeof(param["value"]) if type else "") \
+		+ (" = " + " | ".join(options) if options.size() else "")
