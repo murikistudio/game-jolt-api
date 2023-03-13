@@ -550,7 +550,7 @@ func _set_control_size(control: Control, expand := false, h_size := 1.0) -> void
 		control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		control.size_flags_vertical = Control.SIZE_EXPAND_FILL
 
-	control.rect_min_size = Vector2(150 * h_size, CONTROL_RECT_MIN_SIZE.y)
+	control.rect_min_size = Vector2(130 * h_size, CONTROL_RECT_MIN_SIZE.y)
 
 
 # Format param text based on its name, optional, type and valid options.
