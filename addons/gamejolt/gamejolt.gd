@@ -580,6 +580,11 @@ func _data_to_string(data) -> String:
 	return data
 
 
+# Formats an operation name to a signal name.
+func _operation_to_signal(operation: String) -> String:
+	return operation.replace("/", "_").replace("-", "_") + "_completed"
+
+
 # Event handlers
 # Executed when the request is finished.
 func _on_HTTPRequest_request_completed(
@@ -590,7 +595,7 @@ func _on_HTTPRequest_request_completed(
 	operation: String,
 	http_request: HTTPRequest
 ) -> void:
-	var signal_prefix := operation.replace("/", "_").replace("-", "_")
+	var signal_name := _operation_to_signal(operation)
 
 	if result == HTTPRequest.RESULT_SUCCESS and response_code == HTTPClient.RESPONSE_OK:
 		var parsed_body: Dictionary = JSON.parse(body.get_string_from_utf8()).result
@@ -601,7 +606,7 @@ func _on_HTTPRequest_request_completed(
 		else:
 			parsed_body = {"success": "false"}
 
-		emit_signal(signal_prefix + "_completed", parsed_body)
+		emit_signal(signal_name, parsed_body)
 
 		if _debug: prints(JSON.print(parsed_body))
 		return
@@ -616,4 +621,4 @@ func _on_HTTPRequest_request_completed(
 # Executed when a local error happens and the script must wait to respond.
 func _on_TimerFailed_timeout(operation: String, data: Dictionary) -> void:
 	if _debug: prints(JSON.print(data))
-	emit_signal(operation.replace("/", "_") + "_completed", data)
+	emit_signal(_operation_to_signal(operation), data)
