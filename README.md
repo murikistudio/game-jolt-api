@@ -5,7 +5,7 @@
 
 Wrapper for the Game Jolt API running through HTTP requests. It contains all Game Jolt API endpoints and aims to simplify its use where it's possible. Compatible with **Godot 3.5.x**.
 
-For examples of use, see the [Documentation](#documentation) below. There's also an example scene in `addons/gamejolt/example` containing all endpoints and parameters on a graphical interface.
+For examples of use, see the [documentation](#documentation) below. There's also an example scene in `addons/gamejolt/example` containing all endpoints and parameters on a graphical interface.
 
 <p align="center">
   <img width="75%" alt="Game Jolt API for Godot" src="addons/gamejolt/example/screenshot.jpg">
@@ -146,7 +146,7 @@ Can be used to see if a particular user account is active in the game.
 Emits `sessions_check_completed`.
 
 **Notes:**
-- This endpoint returns `false` for the `"success"`` field when no open session exists. That behaviour is different from other endpoints which use this field to indicate an error state.
+- This endpoint returns `false` for the `"success"` field when no open session exists. That behaviour is different from other endpoints which use this field to indicate an error state.
 - Requires user name and token to be set on `GameJolt` singleton.
 
 #### [sessions_close](https://gamejolt.com/game-api/doc/sessions/close)() -> GameJolt
