@@ -95,6 +95,10 @@ onready var _endpoints := [
 		],
 	},
 	{
+		"name": "sessions_check",
+		"endpoint": true,
+	},
+	{
 		"name": "sessions_close",
 		"endpoint": true,
 	},
