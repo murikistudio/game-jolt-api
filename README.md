@@ -29,8 +29,8 @@ Example: `sessions_ping(status?) -> GameJolt`.
 
 #### Initial Setup
 - Enable the plugin on `Project Settings > Plugins`
-- Set the game ID and private key to be able to perform API requests on `Project Settings > General > Game Jolt > Default`.
-- Optionally, you can set a default user name and token on `Project Settings > General > Game Jolt > Debug`.
+- Set the game ID and private key to be able to perform API requests on `Project Settings > General > Game Jolt > Config > Global`.
+- Optionally, you can set a default user name and token on `Project Settings > General > Game Jolt > Config > Debug.
     - Those properties will only be used as defaults on editor and debug builds, allowing easier testing and prototyping.
     - On release builds you must set the user name and token manually. See [General](#general) methods.
 
