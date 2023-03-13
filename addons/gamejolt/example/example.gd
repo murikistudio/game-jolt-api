@@ -29,6 +29,7 @@ onready var _endpoints := [
 				"value": GameJolt._private_key,
 				"object": GameJolt,
 				"property": "_private_key",
+				"secret": true,
 			},
 			{
 				"name": "user_name",
@@ -41,6 +42,7 @@ onready var _endpoints := [
 				"value": GameJolt.get_user_token(),
 				"object": GameJolt,
 				"property": "_user_token",
+				"secret": true,
 			},
 		],
 	},
@@ -432,6 +434,7 @@ func _create_param_input_string(param: Dictionary) -> LineEdit:
 	line_edit.placeholder_text = _format_placeholder_text(param)
 	line_edit.text = JSON.print(param["value"]) if typeof(param["value"]) in [TYPE_ARRAY, TYPE_DICTIONARY] else str(param["value"])
 	line_edit.connect("text_changed", self, "_on_LineEdit_text_changed", [param])
+	line_edit.secret = param.get("secret", false)
 	return line_edit
 
 
