@@ -20,15 +20,15 @@ onready var _endpoints := [
 		"params": [
 			{
 				"name": "game_id",
-				"value": GameJolt._game_id,
+				"value": GameJolt.game_id,
 				"object": GameJolt,
-				"property": "_game_id",
+				"property": "game_id",
 			},
 			{
 				"name": "private_key",
-				"value": GameJolt._private_key,
+				"value": GameJolt.private_key,
 				"object": GameJolt,
-				"property": "_private_key",
+				"property": "private_key",
 				"secret": true,
 			},
 			{
