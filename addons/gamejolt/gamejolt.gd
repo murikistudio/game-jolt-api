@@ -596,10 +596,10 @@ func _on_HTTPRequest_request_completed(
 	http_request: HTTPRequest
 ) -> void:
 	var signal_name := _operation_to_signal(operation)
+	http_request.queue_free()
 
 	if result == HTTPRequest.RESULT_SUCCESS and response_code == HTTPClient.RESPONSE_OK:
 		var parsed_body: Dictionary = JSON.parse(body.get_string_from_utf8()).result
-		http_request.queue_free()
 
 		if parsed_body and parsed_body["response"]:
 			parsed_body = parsed_body["response"]
