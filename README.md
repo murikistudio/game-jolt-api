@@ -61,33 +61,54 @@ func _onButtonTime_pressed() -> void:
 **Note:** All signals return a `response: Dictionary`.
 
 ### Signals
+#### General
+- `user_name_changed`
+- `user_token_changed`
+- `game_id_changed`
+- `private_key_changed`
+
+#### Users
 - `users_fetch_completed(response: Dictionary)`
 - `users_auth_completed(response: Dictionary)`
+
+#### Sessions
 - `sessions_open_completed(response: Dictionary)`
 - `sessions_ping_completed(response: Dictionary)`
 - `sessions_check_completed(response: Dictionary)`
 - `sessions_close_completed(response: Dictionary)`
+
+#### Scores
 - `scores_fetch_completed(response: Dictionary)`
 - `scores_tables_completed(response: Dictionary)`
 - `scores_add_completed(response: Dictionary)`
 - `scores_get_rank_completed(response: Dictionary)`
+
+#### Trophies
 - `trophies_fetch_completed(response: Dictionary)`
 - `trophies_add_achieved_completed(response: Dictionary)`
 - `trophies_remove_achieved_completed(response: Dictionary)`
+
+#### Data Storage
 - `data_store_set_completed(response: Dictionary)`
 - `data_store_update_completed(response: Dictionary)`
 - `data_store_remove_completed(response: Dictionary)`
 - `data_store_fetch_completed(response: Dictionary)`
 - `data_store_get_keys_completed(response: Dictionary)`
+
+#### Friends
 - `friends_completed(response: Dictionary)`
+
+#### Time
 - `time_completed(response: Dictionary)`
+
+#### Batch Calls
 - `batch_completed(response: Dictionary)`
 
 ### General
 General methods to configure `GameJolt` singleton locally.
 
 #### set_user_name(value)
-Set the user name for auth and other user scope tasks.
+Set the user name for auth and other user scope tasks. Emits `user_name_changed`.
 
 - `value: String` -> The user name.
 
@@ -95,12 +116,28 @@ Set the user name for auth and other user scope tasks.
 Get current user name.
 
 #### set_user_token(value)
-Set the user token for auth and other user scope tasks.
+Set the user token for auth and other user scope tasks. Emits `user_token_changed`.
 
 - `value: String` -> The user game token.
 
 #### get_user_token() -> String
 Get current user game token.
+
+#### set_game_id(value)
+Set the game ID needed for all tasks. Emits `game_id_changed`.
+
+- `value: String` -> The game ID from your Game Jolt project.
+
+#### get_game_id() -> String
+Get current game ID.
+
+#### set_private_key(value)
+Set the private key needed for all tasks. Emits `private_key_changed`.
+
+- `value: String` -> The game private key from your Game Jolt project.
+
+#### get_private_key() -> String
+Get current game private key.
 
 ### Users
 #### [users_fetch](https://gamejolt.com/game-api/doc/users/fetch)(user_name?, user_ids?) -> GameJolt
