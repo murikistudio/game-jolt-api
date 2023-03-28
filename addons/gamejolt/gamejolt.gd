@@ -33,10 +33,7 @@ signal batch_completed(response)
 
 # Constants
 const BASE_URL := "https://api.gamejolt.com/api/game/v1_2"
-const HEADERS := [
-	"Access-Control-Allow-Origin: *",
-	"Access-Control-Allow-Methods: GET",
-]
+const HEADERS := []
 const OPERATIONS := {
 	"users/fetch": BASE_URL + "/users/" + "?",
 	"users/auth": BASE_URL + "/users/auth/" + "?",
