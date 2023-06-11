@@ -6,26 +6,17 @@
 ;   [section] ; section goes between []
 ;   param=value ; assign values to parameters
 
-config_version=4
-
-_global_script_classes=[ {
-"base": "Node",
-"class": "_GameJolt",
-"language": "GDScript",
-"path": "res://addons/gamejolt/gamejolt.gd"
-} ]
-_global_script_class_icons={
-"_GameJolt": ""
-}
+config_version=5
 
 [application]
 
 config/name="Game Jolt API"
 run/main_scene="res://addons/gamejolt/example/example.tscn"
+config/features=PackedStringArray("4.1")
+boot_splash/bg_color=Color(0.211765, 0.211765, 0.211765, 1)
 boot_splash/image="res://addons/gamejolt/icon.png"
 boot_splash/fullsize=false
 boot_splash/use_filter=false
-boot_splash/bg_color=Color( 0.211765, 0.211765, 0.211765, 1 )
 config/icon="res://addons/gamejolt/icon.png"
 
 [autoload]
@@ -39,7 +30,11 @@ window/size/height=540
 
 [editor_plugins]
 
-enabled=PoolStringArray( "res://addons/gamejolt/plugin.cfg" )
+enabled=PackedStringArray("res://addons/gamejolt/plugin.cfg")
+
+[filesystem]
+
+import/blender/enabled=false
 
 [game_jolt]
 

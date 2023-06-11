@@ -6,10 +6,10 @@ const CONTROL_RECT_MIN_SIZE := Vector2(0, 32)
 
 
 # Variables
-onready var _text_edit_output: TextEdit = find_node("TextEditOutput")
-onready var _container_inputs: Container = find_node("ContainerInputs")
-onready var _global := []
-onready var _endpoints := [
+@onready var _text_edit_output: TextEdit = find_child("TextEditOutput")
+@onready var _container_inputs: Container = find_child("ContainerInputs")
+@onready var _global := []
+@onready var _endpoints := [
 	{
 		"name": "Global",
 		"section": true,
@@ -378,7 +378,7 @@ func _add_endpoint_controls() -> void:
 
 		if endpoint.get("endpoint"):
 			var button := _create_endpoint_button(endpoint)
-			button.connect("pressed", self, "_on_ButtonEndpoint_pressed", [endpoint])
+			button.pressed.connect(_on_ButtonEndpoint_pressed.bind(endpoint))
 			container.add_child(button)
 
 		for _param in endpoint.get("params", []):
@@ -392,7 +392,7 @@ func _add_endpoint_controls() -> void:
 func _create_endpoint_container() -> Container:
 	var container := HBoxContainer.new()
 	container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	container.rect_min_size = CONTROL_RECT_MIN_SIZE
+	container.custom_minimum_size = CONTROL_RECT_MIN_SIZE
 	return container
 
 
@@ -410,7 +410,7 @@ func _create_endpoint_button(endpoint: Dictionary) -> Button:
 
 		param_hints.push_back(hint)
 
-	button.hint_tooltip = endpoint["name"] + "(%s)" % ", ".join(param_hints)
+	button.tooltip_text = endpoint["name"] + "(%s)" % ", ".join(param_hints)
 	return button
 
 
@@ -427,7 +427,7 @@ func _create_param_input(param: Dictionary) -> Control:
 	else:
 		control = _create_param_input_string(param)
 
-	control.hint_tooltip = _format_placeholder_text(param, true, true)
+	control.tooltip_text = _format_placeholder_text(param, true, true)
 	return control
 
 
@@ -437,8 +437,8 @@ func _create_param_input_string(param: Dictionary) -> LineEdit:
 	_set_control_size(line_edit)
 	line_edit.placeholder_text = _format_placeholder_text(param)
 	param["value"] = _get_literal(param["value"]) if typeof(param["value"]) == TYPE_STRING else param["value"]
-	line_edit.text = JSON.print(param["value"]) if typeof(param["value"]) in [TYPE_ARRAY, TYPE_DICTIONARY] else str(param["value"])
-	line_edit.connect("text_changed", self, "_on_LineEdit_text_changed", [param])
+	line_edit.text = JSON.stringify(param["value"]) if typeof(param["value"]) in [TYPE_ARRAY, TYPE_DICTIONARY] else str(param["value"])
+	line_edit.text_changed.connect(_on_LineEdit_text_changed.bind(param))
 	line_edit.secret = param.get("secret", false)
 	return line_edit
 
@@ -448,7 +448,7 @@ func _create_param_input_bool(param: Dictionary) -> CheckBox:
 	var check_box := CheckBox.new()
 	_set_control_size(check_box)
 	check_box.text = " " + _format_placeholder_text(param)
-	check_box.connect("toggled", self, "_on_CheckBox_toggled", [param])
+	check_box.toggled.connect(_on_CheckBox_toggled.bind(param))
 	return check_box
 
 
@@ -457,7 +457,7 @@ func _create_param_input_int(param: Dictionary) -> SpinBox:
 	var spin_box := SpinBox.new()
 	_set_control_size(spin_box)
 	spin_box.prefix = _format_placeholder_text(param)
-	spin_box.connect("value_changed", self, "_on_SpinBox_value_changed", [param])
+	spin_box.value_changed.connect(_on_SpinBox_value_changed.bind(param))
 	return spin_box
 
 
@@ -465,16 +465,16 @@ func _create_param_input_int(param: Dictionary) -> SpinBox:
 func _create_section(endpoint: Dictionary) -> Label:
 	var label := Label.new()
 	label.text = endpoint["name"]
-	label.align = Label.ALIGN_CENTER
-	label.valign = Label.VALIGN_BOTTOM
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	label.rect_min_size = CONTROL_RECT_MIN_SIZE #* 0.75
+	label.custom_minimum_size = CONTROL_RECT_MIN_SIZE #* 0.75
 	return label
 
 
 # Sets indexed property of object after parameter is set.
 func _run_param_setter(param: Dictionary) -> void:
-	if not param.get("object") or not param.get("property"):
+	if not param.get("object") or not param.get("property").length():
 		return
 
 	prints("Set", param["object"], ":", param["property"], "=", param["value"])
@@ -492,10 +492,10 @@ func _on_ButtonEndpoint_pressed(endpoint: Dictionary) -> void:
 	for param in endpoint.get("params", []):
 		param_values.push_back(param["value"])
 
-	if not GameJolt.is_connected(signal_name, self, method_name):
-		GameJolt.connect(signal_name, self, method_name, [endpoint])
+	if not GameJolt.is_connected(signal_name, get(method_name)):
+		GameJolt.connect(signal_name, get(method_name).bind(endpoint))
 
-	prints("Run endpoint:", endpoint["name"], JSON.print(param_values))
+	prints("Run endpoint:", endpoint["name"], JSON.stringify(param_values))
 	GameJolt.callv(endpoint["name"], param_values)
 
 
@@ -504,10 +504,10 @@ func _on_request_completed(result: Dictionary, endpoint: Dictionary) -> void:
 	var param_values := []
 
 	for param in endpoint.get("params", []):
-		param_values.push_back(JSON.print(param["value"]))
+		param_values.push_back(JSON.stringify(param["value"]))
 
 	_text_edit_output.text = "Result of " + endpoint["name"] + "(%s)" % (", ".join(param_values)) + ":\n\n" \
-		+ JSON.print(result, "    ")
+		+ JSON.stringify(result, "    ")
 
 
 # Executed when a numeric input changes its value.
@@ -530,10 +530,10 @@ func _on_LineEdit_text_changed(value: String, param: Dictionary) -> void:
 	var new_value = value
 	var allow_conversion := false
 
-	if typeof(old_value) in [TYPE_ARRAY, TYPE_DICTIONARY] and not validate_json(value):
-		new_value = parse_json(value)
+	if typeof(old_value) in [TYPE_ARRAY, TYPE_DICTIONARY] and JSON.parse_string(value):
+		new_value = JSON.parse_string(value)
 
-	elif typeof(old_value) == TYPE_INT and value.is_valid_integer():
+	elif typeof(old_value) == TYPE_INT and value.is_valid_int():
 		new_value = value.to_int()
 
 	elif str(value).to_lower() in ["true", "false", "null"]:
@@ -572,7 +572,7 @@ func _set_control_size(control: Control, expand := false, h_size := 1.0) -> void
 		control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		control.size_flags_vertical = Control.SIZE_EXPAND_FILL
 
-	control.rect_min_size = Vector2(130 * h_size, CONTROL_RECT_MIN_SIZE.y)
+	control.custom_minimum_size = Vector2(130 * h_size, CONTROL_RECT_MIN_SIZE.y)
 
 
 # Format param text based on its name, optional, type and valid options.

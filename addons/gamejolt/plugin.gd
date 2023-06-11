@@ -1,4 +1,4 @@
-tool
+@tool
 extends EditorPlugin
 
 const DEBUG := true
@@ -32,7 +32,7 @@ const DEFAULT_SETTINGS := [
 ]
 
 
-func enable_plugin() -> void:
+func _enable_plugin() -> void:
 	add_autoload_singleton("GameJolt", "res://addons/gamejolt/gamejolt.gd")
 
 	if not has_settings():
@@ -41,7 +41,7 @@ func enable_plugin() -> void:
 	print("Game Jolt API: Plugin initialized")
 
 
-func disable_plugin() -> void:
+func _disable_plugin() -> void:
 	remove_autoload_singleton("GameJolt")
 
 	if DEBUG:
