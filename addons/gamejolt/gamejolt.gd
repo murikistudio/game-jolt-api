@@ -60,10 +60,10 @@ const OPERATIONS := {
 
 
 # Variables
-var user_name := "" setget set_user_name, get_user_name
-var user_token := "" setget set_user_token, get_user_token
-var game_id := "" setget set_game_id, get_game_id
-var private_key := "" setget set_private_key, get_private_key
+var user_name := "": set = set_user_name, get = get_user_name
+var user_token := "": set = set_user_token, get = get_user_token
+var game_id := "": set = set_game_id, get = get_game_id
+var private_key := "": set = set_private_key, get = get_private_key
 
 var _submit_requests := true
 var _batch_requests := []
@@ -142,7 +142,7 @@ func users_fetch(username := "", user_ids := []) -> _GameJolt:
 		"game_id": game_id,
 	}
 
-	if username and user_ids.size():
+	if username.length() and user_ids.size():
 		return _dispatch_local_error_response(
 			"users/fetch",
 			"Values cannot be used together: username, user_ids"
@@ -504,10 +504,9 @@ func _submit(operation: String, data: Dictionary, optional_data := {}) -> _GameJ
 
 	var http_request := _create_http_request()
 
-	http_request.request(final_url, HEADERS, true, HTTPClient.METHOD_GET)
-	http_request.connect(
-		"request_completed", self, "_on_HTTPRequest_request_completed",
-		[operation, http_request], CONNECT_ONESHOT
+	http_request.request(final_url, HEADERS, HTTPClient.METHOD_GET)
+	http_request.request_completed.connect(
+		_on_HTTPRequest_request_completed.bind(operation, http_request), CONNECT_ONE_SHOT
 	)
 
 	return self
@@ -526,8 +525,8 @@ func _dispatch_local_error_response(operation: String, message: String, extra_da
 	var data := {"success": "false", "message": message}
 	data.merge(extra_data, true)
 
-	get_tree().create_timer(0.1).connect(
-		"timeout", self, "_on_TimerFailed_timeout", [operation, data]
+	get_tree().create_timer(0.1).timeout.connect(
+		_on_TimerFailed_timeout.bind(operation, data)
 	)
 	return self
 
@@ -557,7 +556,7 @@ func _validate_required_data(data: Dictionary) -> String:
 	for key in data.keys():
 		var value = data[key]
 
-		if typeof(value) == TYPE_NIL or typeof(value) == TYPE_STRING and not value:
+		if typeof(value) == TYPE_NIL or typeof(value) == TYPE_STRING and not value.length():
 			return "Value is required: " + str(key)
 
 		if typeof(value) == TYPE_BOOL:
@@ -573,7 +572,7 @@ func _validate_optional_data(data: Dictionary) -> Dictionary:
 	for key in data.keys():
 		var value = data[key]
 
-		if typeof(value) == TYPE_NIL or typeof(value) == TYPE_STRING and not value:
+		if typeof(value) == TYPE_NIL or typeof(value) == TYPE_STRING and not value.length():
 			continue
 
 		if typeof(value) == TYPE_BOOL:
@@ -589,7 +588,7 @@ func _params_encode(data: Dictionary, requests := []) -> String:
 	var params := []
 
 	for key in data.keys():
-		params.push_back(key + "=" + str(data[key]).percent_encode())
+		params.push_back(key + "=" + str(data[key]).uri_encode())
 
 	for request in requests:
 		params.push_back("requests[]=" + request.percent_encode())
@@ -600,7 +599,7 @@ func _params_encode(data: Dictionary, requests := []) -> String:
 # Convert generic data to string in the best way possible.
 func _data_to_string(data) -> String:
 	if typeof(data) in [TYPE_ARRAY, TYPE_DICTIONARY]:
-		data = JSON.print(data)
+		data = JSON.stringify(data)
 	elif typeof(data) == TYPE_BOOL:
 		data = str(data).to_lower()
 	else:
@@ -619,8 +618,8 @@ func _operation_to_signal(operation: String) -> String:
 func _on_HTTPRequest_request_completed(
 	result: int,
 	response_code: int,
-	headers: PoolStringArray,
-	body: PoolByteArray,
+	headers: PackedStringArray,
+	body: PackedByteArray,
 	operation: String,
 	http_request: HTTPRequest
 ) -> void:
@@ -628,7 +627,7 @@ func _on_HTTPRequest_request_completed(
 	http_request.queue_free()
 
 	if result == HTTPRequest.RESULT_SUCCESS and response_code == HTTPClient.RESPONSE_OK:
-		var parsed_body: Dictionary = JSON.parse(body.get_string_from_utf8()).result
+		var parsed_body: Dictionary = JSON.parse_string(body.get_string_from_utf8())
 
 		if parsed_body and parsed_body["response"]:
 			parsed_body = parsed_body["response"]
@@ -637,7 +636,7 @@ func _on_HTTPRequest_request_completed(
 
 		emit_signal(signal_name, parsed_body)
 
-		if _debug: prints(JSON.print(parsed_body))
+		if _debug: prints(JSON.stringify(parsed_body))
 		return
 
 	_dispatch_local_error_response(
@@ -649,5 +648,5 @@ func _on_HTTPRequest_request_completed(
 
 # Executed when a local error happens and the script must wait to respond.
 func _on_TimerFailed_timeout(operation: String, data: Dictionary) -> void:
-	if _debug: prints(JSON.print(data))
+	if _debug: prints(JSON.stringify(data))
 	emit_signal(_operation_to_signal(operation), data)
