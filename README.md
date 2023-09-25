@@ -42,7 +42,7 @@ You can connect specific signals to capture responses on method callbacks:
 
 ```gdscript
 func _ready() -> void:
-    GameJolt.connect("time_completed", self, "_on_GameJolt_time_completed")
+    GameJolt.time_completed.connect(_on_GameJolt_time_completed)
     GameJolt.time()
 
 
@@ -50,11 +50,12 @@ func _on_GameJolt_time_completed(result: Dictionary) -> void:
     # Do something with the request result...
 ```
 
-Or you can `yield` the method result in a variable:
+Or you can `await` the signal result in a variable:
 
 ```gdscript
 func _onButtonTime_pressed() -> void:
-    var result: Dictionary = yield(GameJolt.time(), "time_completed")
+    GameJolt.time()
+    var result: Dictionary = await GameJolt.time_completed
     # Do something with the request result...
 ```
 
@@ -345,20 +346,22 @@ A batch request is a collection of sub-requests that enables developers to send 
 To use batch calls in your code, place your request calls between a `batch_begin` and `batch_end`. For example, use your methods in the following order:
 
 ```gdscript
-# Begin to gather batch requests
-GameJolt.batch_begin()
+func _onButtonBatch_pressed() -> void:
+    # Begin to gather batch requests
+    GameJolt.batch_begin()
 
-# Add the time request to the batch
-GameJolt.time()
+    # Add the time request to the batch
+    GameJolt.time()
 
-# Add the scores_tables request to the batch
-GameJolt.scores_tables()
+    # Add the scores_tables request to the batch
+    GameJolt.scores_tables()
 
-# Stop gathering batch requests
-GameJolt.batch_end()
+    # Stop gathering batch requests
+    GameJolt.batch_end()
 
-# Perform the batch call with the two requests above (time and score_tables)
-var result: Dictionary = yield(GameJolt.batch(), "batch_completed")
+    # Perform the batch call with the two requests above (time and score_tables)
+    GameJolt.batch()
+    var result: Dictionary = await GameJolt.batch_completed
 ```
 
 #### [batch](https://gamejolt.com/game-api/doc/batch)(parallel?, break_on_error?) -> GameJolt
