@@ -3,7 +3,7 @@
 </p>
 <h1 align="center">Game Jolt API for Godot</h1>
 
-Wrapper for the Game Jolt API running through HTTP requests. It contains all Game Jolt API endpoints and aims to simplify its use where it's possible. Compatible with **Godot 3.5.x**.
+Wrapper for the [Game Jolt API](https://gamejolt.com/game-api/doc) running through HTTP requests. It contains all Game Jolt API endpoints and aims to simplify its use where it's possible. Compatible with **Godot 3.5.x**.
 
 For examples of use, see the [documentation](#documentation) below. There's also an example scene in `addons/gamejolt/example` containing all endpoints and parameters on a graphical interface.
 
