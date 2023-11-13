@@ -591,7 +591,7 @@ func _params_encode(data: Dictionary, requests := []) -> String:
 		params.push_back(key + "=" + str(data[key]).uri_encode())
 
 	for request in requests:
-		params.push_back("requests[]=" + request.percent_encode())
+		params.push_back("requests[]=" + request.uri_encode())
 
 	return "&".join(params)
 
