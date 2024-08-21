@@ -61,47 +61,47 @@ func _onButtonTime_pressed() -> void:
 **Note:** All signals return a `response: Dictionary`.
 
 ### Signals
-#### General
+**General**
 - `user_name_changed`
 - `user_token_changed`
 - `game_id_changed`
 - `private_key_changed`
 
-#### Users
+**Users**
 - `users_fetch_completed(response: Dictionary)`
 - `users_auth_completed(response: Dictionary)`
 
-#### Sessions
+**Sessions**
 - `sessions_open_completed(response: Dictionary)`
 - `sessions_ping_completed(response: Dictionary)`
 - `sessions_check_completed(response: Dictionary)`
 - `sessions_close_completed(response: Dictionary)`
 
-#### Scores
+**Scores**
 - `scores_fetch_completed(response: Dictionary)`
 - `scores_tables_completed(response: Dictionary)`
 - `scores_add_completed(response: Dictionary)`
 - `scores_get_rank_completed(response: Dictionary)`
 
-#### Trophies
+**Trophies**
 - `trophies_fetch_completed(response: Dictionary)`
 - `trophies_add_achieved_completed(response: Dictionary)`
 - `trophies_remove_achieved_completed(response: Dictionary)`
 
-#### Data Storage
+**Data Storage**
 - `data_store_set_completed(response: Dictionary)`
 - `data_store_update_completed(response: Dictionary)`
 - `data_store_remove_completed(response: Dictionary)`
 - `data_store_fetch_completed(response: Dictionary)`
 - `data_store_get_keys_completed(response: Dictionary)`
 
-#### Friends
+**Friends**
 - `friends_completed(response: Dictionary)`
 
-#### Time
+**Time**
 - `time_completed(response: Dictionary)`
 
-#### Batch Calls
+**Batch Calls**
 - `batch_completed(response: Dictionary)`
 
 ### General
