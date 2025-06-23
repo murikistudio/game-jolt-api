@@ -2,7 +2,7 @@
 
 [ext_resource type="FontFile" uid="uid://ds22a1xbmuftb" path="res://addons/gamejolt/example/font.ttf" id="1"]
 [ext_resource type="Texture2D" uid="uid://deo8e6fcsrtyu" path="res://addons/gamejolt/example/logo.png" id="2"]
-[ext_resource type="Script" path="res://addons/gamejolt/example/example.gd" id="3"]
+[ext_resource type="Script" uid="uid://dmyj6ouux0146" path="res://addons/gamejolt/example/example.gd" id="3"]
 
 [sub_resource type="FontFile" id="7"]
 fallbacks = Array[Font]([ExtResource("1")])
